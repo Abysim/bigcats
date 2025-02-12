@@ -2,7 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Article;
+use App\Models\News;
+use App\Models\Tag;
+use App\Models\TagType;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +16,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $types = TagType::factory(3)->create();
+        $tags = Tag::factory(100)->recycle($types)->create();
+        News::factory(50)->recycle($tags)->create();
+        Article::factory(100)->recycle($tags)->create();
     }
 }
