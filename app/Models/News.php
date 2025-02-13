@@ -5,8 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
+/**
+ * @property int $id
+ * @property Carbon $date
+ * @property string $slug
+ * @property string $title
+ * @property string $content
+ * @property string $source_name
+ * @property string $source_url
+ * @property string $image
+ * @property string $image_caption
+ * @property string $author
+ * @property bool $is_original
+ * @property bool $is_published
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Collection|Tag[] $tags
+ */
 class News extends Model
 {
     use HasFactory, HasBuilder;
@@ -42,8 +61,8 @@ class News extends Model
         'is_published' => 'boolean',
     ];
 
-    public function tags(): HasMany
+    public function tags(): BelongsToMany
     {
-        return $this->hasMany(Tag::class);
+        return $this->belongsToMany(Tag::class);
     }
 }
