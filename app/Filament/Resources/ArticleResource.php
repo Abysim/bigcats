@@ -3,15 +3,23 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Pages;
-use App\Filament\Resources\ArticleResource\RelationManagers;
 use App\Models\Article;
-use Filament\Forms;
+use Exception;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class ArticleResource extends Resource
 {
@@ -19,66 +27,113 @@ class ArticleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
+    protected static ?string $modelLabel = 'стаття';
+
+    protected static ?string $pluralModelLabel = 'статті';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('parent_id')
-                    ->relationship('parent', 'title')
-                    ->default(null),
-                Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('priority')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('content')
-                    ->required()
+                Section::make()
+                    ->schema([
+                        TextInput::make('priority')
+                            ->required()
+                            ->numeric()
+                            ->default(0)
+                            ->maxValue(127)
+                            ->minValue(-128),
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state)))
+                            ->columnSpan(11),
+                    ])
+                    ->columns(12)
                     ->columnSpanFull(),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
-                Forms\Components\TextInput::make('image_caption')
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('is_published')
-                    ->required(),
+                Section::make('Image')
+                    ->columns(4)
+                    ->schema([
+                        FileUpload::make('image')
+                            ->hiddenLabel()
+                            ->directory('articles')
+                            ->panelLayout('compact')
+                            ->image(),
+                        TextInput::make('image_caption')
+                            ->maxLength(255)
+                            ->columnSpan(3),
+                    ])
+                    ->collapsible(),
+                RichEditor::make('content')
+                    ->required()
+                    ->columnSpanFull()
+                    ->fileAttachmentsDirectory('articles')
+                    ->getUploadedAttachmentUrlUsing(fn ($file) => '/storage/' . $file),
+                Section::make()
+                    ->schema([
+                        Select::make('parent_id')
+                            ->label('Parent')
+                            ->relationship(
+                                'parent',
+                                'title',
+                                fn ($query, $record) => $query->whereNotIn('id', $record->getAllChildrenIds())
+                            )
+                            ->searchable()
+                            ->columnSpan(5),
+                        TextInput::make('slug')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(6),
+                        Toggle::make('is_published')
+                            ->label('Published')
+                            ->default(true)
+                            ->required()
+                            ->inline(false),
+                    ])
+                    ->columns(12)
+                    ->columnSpanFull(),
             ]);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function table(Table $table): Table
     {
         return $table
+            ->reorderable('priority')
             ->columns([
-                Tables\Columns\TextColumn::make('parent.title')
-                    ->numeric()
+                TextColumn::make('priority')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
+                ImageColumn::make('image')
+                    ->extraImgAttributes(fn (Article $record): array => [
+                        'alt' => $record->image_caption,
+                        'title' => $record->image_caption,
+                    ]),
+                TextColumn::make('title')
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('priority')
-                    ->numeric()
+                TextColumn::make('parent.title')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('title')
-                    ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\ImageColumn::make('image_caption'),
-                Tables\Columns\IconColumn::make('is_published')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
+                ToggleColumn::make('is_published')
+                    ->default(true),
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('parent')
+                    ->relationship('parent', 'title', fn ($query) => $query->has('children')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

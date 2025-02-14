@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('parent_id')->nullable();
             $table->string('slug');
-            $table->tinyInteger('priority')->default(0);
+            $table->integer('priority')->default(0);
             $table->string('title');
             $table->text('content')->default('');
             $table->string('image')->nullable();

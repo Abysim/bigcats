@@ -37,19 +37,25 @@ class NewsResource extends Resource
     {
         return $form
             ->schema([
-                DatePicker::make('date')
-                    ->required(),
-                TextInput::make('title')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state)))
-                    ->columnSpan(3),
+                Section::make()
+                    ->schema([
+                        DatePicker::make('date')
+                            ->required(),
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state)))
+                            ->columnSpan(6),
+                        ])
+                    ->columns(7)
+                    ->columnSpanFull(),
                 Section::make('Image & Source')
                     ->columns(4)
                     ->schema([
                         FileUpload::make('image')
+                            ->hiddenLabel()
                             ->directory('news')
                             ->panelLayout('compact')
                             ->image(),
@@ -64,29 +70,36 @@ class NewsResource extends Resource
                             ->default(null)
                             ->columnSpan(3),
                     ])
-                    ->collapsible(),
+                    ->collapsible()
+                    ->columnSpanFull(),
                 RichEditor::make('content')
                     ->required()
                     ->columnSpanFull()
                     ->fileAttachmentsDirectory('news')
                     ->getUploadedAttachmentUrlUsing(fn ($file) => '/storage/' . $file),
-                Select::make('tags')
-                    ->relationship('tags', 'name')
-                    ->multiple()
-                    ->columnSpan(3),
-                Toggle::make('is_original')
-                    ->required()
-                    ->inline(false),
-                TextInput::make('slug')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpan(3),
-                Toggle::make('is_published')
-                    ->default(true)
-                    ->required()
-                    ->inline(false),
-            ])
-            ->columns(4);
+                Section::make()
+                    ->schema([
+                        Select::make('tags')
+                            ->relationship('tags', 'name')
+                            ->multiple()
+                            ->columnSpan(11),
+                        Toggle::make('is_original')
+                            ->label('Original')
+                            ->required()
+                            ->inline(false),
+                        TextInput::make('slug')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(11),
+                        Toggle::make('is_published')
+                            ->label('Published')
+                            ->default(true)
+                            ->required()
+                            ->inline(false),
+                    ])
+                    ->columns(12)
+                    ->columnSpanFull()
+            ]);
     }
 
     public static function table(Table $table): Table
