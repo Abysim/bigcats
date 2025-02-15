@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class TagResource extends Resource
@@ -30,6 +31,9 @@ class TagResource extends Resource
     {
         return $form
             ->schema([
+                TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -45,26 +49,31 @@ class TagResource extends Resource
                     ->relationship('type', 'name')
                     ->required(),
             ])
-            ->columns(3);
+            ->columns(4);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                TextColumn::make('slug')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('short_name')
+                    ->copyable(),
                 TextColumn::make('parent_id')
                     ->label('Parent')
                     ->formatStateUsing(fn (Tag $record) => $record->parent->name ?? '')
                     ->sortable()
                     ->searchable(),
-                SelectColumn::make('type_id')
-                    ->label('Type')
-                    ->options(TagType::query()->pluck('name', 'id')->toArray())
-                    ->sortable()
-                    ->rules(['required']),
+                TextColumn::make('type.name')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -75,7 +84,8 @@ class TagResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('type')
+                    ->relationship('type', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->modal(),

@@ -43,8 +43,8 @@ class ArticleResource extends Resource
                             ->required()
                             ->numeric()
                             ->default(0)
-                            ->maxValue(127)
-                            ->minValue(-128),
+                            ->minValue(0)
+                            ->maxValue(4294967295),
                         TextInput::make('title')
                             ->required()
                             ->maxLength(255)
