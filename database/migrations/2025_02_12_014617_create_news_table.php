@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('source_name')->nullable();
             $table->string('source_url', 1024)->nullable();
             $table->string('image')->nullable();
-            $table->string('image_caption')->nullable();
+            $table->string('image_caption', 1024)->nullable();
             $table->string('author')->nullable();
             $table->boolean('is_original')->default(false);
             $table->boolean('is_published')->default(false);

@@ -19,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Support\Str;
 
 class ArticleResource extends Resource
@@ -64,15 +65,14 @@ class ArticleResource extends Resource
                             ->panelLayout('compact')
                             ->image(),
                         TextInput::make('image_caption')
-                            ->maxLength(255)
+                            ->maxLength(1024)
                             ->columnSpan(3),
                     ])
                     ->collapsible(),
-                RichEditor::make('content')
+                TiptapEditor::make('content')
                     ->required()
                     ->columnSpanFull()
-                    ->fileAttachmentsDirectory('articles')
-                    ->getUploadedAttachmentUrlUsing(fn ($file) => '/storage/' . $file),
+                    ->directory('articles'),
                 Section::make()
                     ->schema([
                         Select::make('parent_id')

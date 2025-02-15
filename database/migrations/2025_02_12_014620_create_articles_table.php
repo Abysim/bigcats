@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('content')->default('');
             $table->string('image')->nullable();
-            $table->string('image_caption')->nullable();
+            $table->string('image_caption', 1024)->nullable();
             $table->boolean('is_published')->default(false);
             $table->unique(['parent_id', 'slug']);
             $table->timestamps();

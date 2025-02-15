@@ -18,6 +18,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
@@ -46,7 +47,12 @@ class NewsResource extends Resource
                             ->maxLength(255)
                             ->columnSpanFull()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state)))
+                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                $createdAt = $get('created_at');
+                                if (!$createdAt || now()->diffInDays($createdAt) <= 1) {
+                                    $set('slug', Str::slug($state));
+                                }
+                            })
                             ->columnSpan(6),
                         ])
                     ->columns(7)
@@ -60,7 +66,7 @@ class NewsResource extends Resource
                             ->panelLayout('compact')
                             ->image(),
                         TextInput::make('image_caption')
-                            ->maxLength(255)
+                            ->maxLength(1024)
                             ->columnSpan(3),
                         TextInput::make('source_name')
                             ->maxLength(255)
@@ -72,11 +78,10 @@ class NewsResource extends Resource
                     ])
                     ->collapsible()
                     ->columnSpanFull(),
-                RichEditor::make('content')
+                TiptapEditor::make('content')
                     ->required()
-                    ->columnSpanFull()
-                    ->fileAttachmentsDirectory('news')
-                    ->getUploadedAttachmentUrlUsing(fn ($file) => '/storage/' . $file),
+                    ->directory('news')
+                    ->columnSpanFull(),
                 Section::make()
                     ->schema([
                         Select::make('tags')
@@ -115,6 +120,7 @@ class NewsResource extends Resource
                     ->date('d.m.Y')
                     ->sortable(),
                 TextColumn::make('title')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('source_name')
                     ->formatStateUsing(fn (string $state, News $record): HtmlString => new HtmlString(
@@ -125,6 +131,7 @@ class NewsResource extends Resource
                     ->searchable()
                     ->label('Source'),
                 TextColumn::make('tags')
+                    ->wrap()
                     ->formatStateUsing(fn (News $record): string => $record->tags->pluck('name')->join(', '))
                     ->searchable(),
                 ToggleColumn::make('is_original'),
@@ -138,6 +145,7 @@ class NewsResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('date', 'desc')
             ->filters([
                 //
             ])
