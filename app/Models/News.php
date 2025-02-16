@@ -12,6 +12,9 @@ use Illuminate\Support\Collection;
 /**
  * @property int $id
  * @property Carbon $date
+ * @property string $year
+ * @property string $month
+ * @property string $day
  * @property string $slug
  * @property string $title
  * @property string $content
