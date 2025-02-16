@@ -14,11 +14,14 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class NewsResource extends Resource
 {
     protected static ?string $model = News::class;
+
+    protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?string $modelLabel = 'новина';
 
@@ -79,11 +82,49 @@ class NewsResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\TextEntry::make('title'),
-                Infolists\Components\TextEntry::make('slug'),
+                Infolists\Components\Split::make([
+                    Infolists\Components\TextEntry::make('date')
+                        ->dateTime('j F Y')
+                        ->label('Дата:')
+                        ->grow(false)
+                        ->inlineLabel(),
+                    Infolists\Components\Split::make([]),
+                    Infolists\Components\TextEntry::make('source_name')
+                        ->formatStateUsing(fn (string $state, News $record): HtmlString => new HtmlString(
+                            $record->source_url
+                                ? "<a rel=\"nofollow\" title=\"$record->source_url\" href=\"$record->source_url\" target=\"_blank\">$state</a>"
+                                : $state
+                        ))
+                        ->grow(false)
+                        ->label('Джерело:')
+                        ->inlineLabel(),
+                ]),
+                Infolists\Components\ImageEntry::make('image')
+                    ->extraImgAttributes(fn (News $record): array => [
+                        'alt' => $record->image_caption,
+                    ])
+                    ->width('100%')
+                    ->height('auto')
+                    ->hiddenLabel(),
                 Infolists\Components\TextEntry::make('content')
-                    ->columnSpanFull(),
-            ]);
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
+                    ->hiddenLabel(),
+                Infolists\Components\Split::make([
+                    Infolists\Components\TextEntry::make('tags')
+                        ->label('Теґи:')
+                        ->grow(false)
+                        ->inlineLabel()
+                        ->formatStateUsing(function (News $record): HtmlString {
+                            $tagLinks = [];
+                            foreach ($record->tags as $tag) {
+                                $tagLinks[] = "<a rel=\"tag\" href=\"/tags/$tag->slug\">$tag->name</a>";
+                            }
+                            return new HtmlString(implode(', ', $tagLinks));
+                        }),
+                    Infolists\Components\Split::make([]),
+                ]),
+            ])
+            ->columns(1);
     }
 
     public static function getRelations(): array
