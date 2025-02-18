@@ -141,6 +141,9 @@ class NewsResource extends Resource
     {
         return [
             'index' => Pages\ListNews::route('/'),
+            'year' => Pages\ListNews::route('/{year}'),
+            'month' => Pages\ListNews::route('/{year}/{month}'),
+            'day' => Pages\ListNews::route('/{year}/{month}/{day}'),
             'view' => Pages\ViewNews::route('/{year}/{month}/{day}/{record}'),
         ];
     }
