@@ -14,7 +14,9 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
@@ -146,5 +148,25 @@ class NewsResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('is_published', true);
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return self::getUrl('view', [
+            'year' => $record->year,
+            'month' => $record->month,
+            'day' => $record->day,
+            'record' => $record->slug,
+        ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['date', 'title', 'content', 'image_caption', 'source_name', 'tags.name'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
+    {
+        return $record->date->format('d.m.Y:') . ' ' . $record->title;
     }
 }

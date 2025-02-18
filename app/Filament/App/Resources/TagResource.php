@@ -19,8 +19,6 @@ class TagResource extends Resource
 {
     protected static ?string $model = News::class;
 
-    protected static ?string $recordTitleAttribute = 'title';
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static bool $shouldRegisterNavigation = false;
