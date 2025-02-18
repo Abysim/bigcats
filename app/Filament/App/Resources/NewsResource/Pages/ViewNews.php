@@ -34,6 +34,7 @@ class ViewNews extends ViewRecord
             ->where('month', request('month'))
             ->where('day', request('day'))
             ->where('slug', $key)
+            ->where('is_published', true)
             ->firstOrFail();
     }
 

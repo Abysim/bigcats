@@ -14,6 +14,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
@@ -53,7 +54,7 @@ class NewsResource extends Resource
                                 ->weight(FontWeight::Bold)
                         ]),
                         TextColumn::make('content')
-                            ->formatStateUsing(fn($state) => Str::of($state)->stripTags()->words(80))
+                            ->formatStateUsing(fn($state) => html_entity_decode(Str::of($state)->stripTags()->words(80)))
                             ->copyable(),
                     ]),
                 ]),
@@ -117,7 +118,7 @@ class NewsResource extends Resource
                         ->formatStateUsing(function (News $record): HtmlString {
                             $tagLinks = [];
                             foreach ($record->tags as $tag) {
-                                $tagLinks[] = "<a rel=\"tag\" href=\"/tags/$tag->slug\">$tag->name</a>";
+                                $tagLinks[] = "<a rel=\"tag\" href=\"" . TagResource::getUrl('view', ['slug' => $tag->slug]) . "\">$tag->name</a>";
                             }
                             return new HtmlString(implode(', ', $tagLinks));
                         }),
@@ -140,5 +141,10 @@ class NewsResource extends Resource
             'index' => Pages\ListNews::route('/'),
             'view' => Pages\ViewNews::route('/{year}/{month}/{day}/{record}'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_published', true);
     }
 }

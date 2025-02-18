@@ -2,12 +2,21 @@
 
 namespace App\Models;
 
+use App\Filament\App\Resources\NewsResource;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
