@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\NewsResource\Pages;
 
 use App\Filament\App\Resources\NewsResource;
+use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -97,5 +98,19 @@ class ListNews extends ListRecords
         }
 
         return [];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            TagCloud::make([
+                'relation' => 'news',
+            ]),
+        ];
+    }
+
+    public function getFooterWidgetsColumns(): int | array
+    {
+        return 1;
     }
 }

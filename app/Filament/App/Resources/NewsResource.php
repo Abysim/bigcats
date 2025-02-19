@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\NewsResource\Pages;
 use App\Models\News;
 use Filament\Infolists;
+use Filament\Infolists\Components\TextEntry\TextEntrySize;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
@@ -111,6 +112,7 @@ class NewsResource extends Resource
                     ->hiddenLabel(),
                 Infolists\Components\TextEntry::make('content')
                     ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
+                    ->size(TextEntrySize::Large)
                     ->hiddenLabel(),
                 Infolists\Components\Split::make([
                     Infolists\Components\TextEntry::make('tags')

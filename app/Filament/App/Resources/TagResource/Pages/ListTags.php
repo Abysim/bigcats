@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\TagResource\Pages;
 
 use App\Filament\App\Resources\TagResource;
+use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use App\Models\Tag;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,6 +50,20 @@ class ListTags extends ListRecords
 
     public function getBreadcrumbs(): array
     {
-        return ['Теґ', ''];
+        return [static::getResource()::getUrl() => 'Теґи', ''];
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            TagCloud::make([
+                'relation' => 'news',
+            ]),
+        ];
+    }
+
+    public function getFooterWidgetsColumns(): int | array
+    {
+        return 1;
     }
 }
