@@ -6,12 +6,12 @@ use App\Filament\Resources\ArticleResource\Pages;
 use App\Models\Article;
 use Exception;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -21,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 
 class ArticleResource extends Resource
 {
@@ -70,7 +71,6 @@ class ArticleResource extends Resource
                     ])
                     ->collapsible(),
                 TiptapEditor::make('content')
-                    ->required()
                     ->columnSpanFull()
                     ->directory('articles'),
                 Section::make()
@@ -80,12 +80,19 @@ class ArticleResource extends Resource
                             ->relationship(
                                 'parent',
                                 'title',
-                                fn ($query, $record) => $query->whereNotIn('id', $record->getAllChildrenIds())
+                                fn ($query, $record)
+                                    => $record ? $query->whereNotIn('id', $record->getAllChildrenIds()) : $query
+                            )
+                            ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, Article $record) =>
+                                $rule->where('slug', $get('slug'))->whereNot('id', $record->id ?? 0)
                             )
                             ->searchable()
                             ->columnSpan(5),
                         TextInput::make('slug')
                             ->required()
+                            ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, Article $record) =>
+                                $rule->where('parent_id', $get('parent_id'))->whereNot('id', $record->id ?? 0)
+                            )
                             ->maxLength(255)
                             ->columnSpan(6),
                         Toggle::make('is_published')
@@ -120,6 +127,9 @@ class ArticleResource extends Resource
                 TextColumn::make('parent.title')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('slug')
+                    ->sortable()
+                    ->searchable(),
                 ToggleColumn::make('is_published')
                     ->default(true),
                 TextColumn::make('created_at')

@@ -12,9 +12,15 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestNews extends BaseWidget
 {
-    protected static ?string $heading = 'Останні новини';
+    public ?string $header = 'Останні новини';
 
     public int $count = 10;
+
+    public array $grid = [
+        'default' => 2,
+        'md' => 3,
+        'lg' => 1,
+    ];
 
     protected int | string | array $columnSpan = 'full';
 
@@ -27,6 +33,7 @@ class LatestNews extends BaseWidget
                     ->latest('date')
                     ->limit($this->count)
             )
+            ->heading($this->header)
             ->columns([
                 Stack::make([
                     ImageColumn::make('image')
@@ -42,11 +49,7 @@ class LatestNews extends BaseWidget
                         ),
                 ]),
             ])
-            ->contentGrid([
-                'default' => 2,
-                'md' => 3,
-                'lg' => 1,
-            ])
+            ->contentGrid($this->grid)
             ->paginated(false)
             ->recordUrl(
                 fn (News $record): string => NewsResource::getUrl('view', [

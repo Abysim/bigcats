@@ -11,20 +11,8 @@ p {
 @media (min-width: 64rem) {
     section > div > div.grid {
         grid-auto-flow: column;
-        grid-template-columns:  1fr 16rem;
+        grid-template-columns:  3fr 1fr;
         gap: 2rem;
-    }
-}
-
-@media (min-width: 80rem) {
-    section > div > div.grid {
-        grid-template-columns: 1fr 20rem;
-    }
-}
-
-@media (min-width: 96rem) {
-    section > div > div.grid {
-        grid-template-columns: 1fr 24rem;
     }
 }
 

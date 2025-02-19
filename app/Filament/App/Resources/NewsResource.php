@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\NewsResource\Pages;
 use App\Models\News;
 use Filament\Infolists;
+use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry\TextEntrySize;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -23,6 +24,8 @@ use Illuminate\Support\Str;
 
 class NewsResource extends Resource
 {
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $model = News::class;
 
     protected static ?string $recordTitleAttribute = 'title';
@@ -31,7 +34,7 @@ class NewsResource extends Resource
 
     protected static ?string $pluralModelLabel = 'новини';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
     public static function table(Table $table): Table
     {
@@ -45,6 +48,7 @@ class NewsResource extends Resource
                             'alt' => $record->image_caption,
                             'title' => $record->image_caption
                         ])
+                        ->alignCenter()
                         ->grow(false),
                     Stack::make([
                         Split::make([
@@ -57,10 +61,11 @@ class NewsResource extends Resource
                                 ->weight(FontWeight::Bold)
                         ]),
                         TextColumn::make('content')
-                            ->formatStateUsing(fn($state) => html_entity_decode(Str::of($state)->stripTags()->words(80)))
+                            ->formatStateUsing(fn($state) => html_entity_decode(Str::of($state)->stripTags()->words(64)))
                             ->copyable(),
                     ]),
-                ]),
+                ])
+                ->from('sm'),
             ])
             ->recordUrl(
                 fn (News $record): string => self::getUrl('view', [
@@ -86,48 +91,52 @@ class NewsResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Split::make([
-                    Infolists\Components\TextEntry::make('date')
-                        ->dateTime('j F Y')
-                        ->label('Дата:')
-                        ->grow(false)
-                        ->inlineLabel(),
-                    Infolists\Components\Split::make([]),
-                    Infolists\Components\TextEntry::make('source_name')
-                        ->formatStateUsing(fn (string $state, News $record): HtmlString => new HtmlString(
-                            $record->source_url
-                                ? "<a rel=\"nofollow\" title=\"$record->source_url\" href=\"$record->source_url\" target=\"_blank\">$state</a>"
-                                : $state
-                        ))
-                        ->grow(false)
-                        ->label('Джерело:')
-                        ->inlineLabel(),
-                ]),
-                Infolists\Components\ImageEntry::make('image')
-                    ->extraImgAttributes(fn (News $record): array => [
-                        'alt' => $record->image_caption,
+                Section::make()
+                    ->schema([
+                        Infolists\Components\Split::make([
+                            Infolists\Components\TextEntry::make('date')
+                                ->dateTime('j F Y')
+                                ->label('Дата:')
+                                ->grow(false)
+                                ->inlineLabel(),
+                            Infolists\Components\Split::make([]),
+                            Infolists\Components\TextEntry::make('source_name')
+                                ->formatStateUsing(fn (string $state, News $record): HtmlString => new HtmlString(
+                                    $record->source_url
+                                        ? "<a rel=\"nofollow\" title=\"$record->source_url\" href=\"$record->source_url\" target=\"_blank\">$state</a>"
+                                        : $state
+                                ))
+                                ->grow(false)
+                                ->label('Джерело:')
+                                ->inlineLabel(),
+                        ]),
+                        Infolists\Components\ImageEntry::make('image')
+                            ->extraImgAttributes(fn (News $record): array => [
+                                'alt' => $record->image_caption,
+                            ])
+                            ->width('100%')
+                            ->height('auto')
+                            ->hiddenLabel(),
+                        Infolists\Components\TextEntry::make('content')
+                            ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
+                            ->size(TextEntrySize::Large)
+                            ->hiddenLabel(),
+                        Infolists\Components\Split::make([
+                            Infolists\Components\TextEntry::make('tags')
+                                ->label('Теґи:')
+                                ->grow(false)
+                                ->inlineLabel()
+                                ->formatStateUsing(function (News $record): HtmlString {
+                                    $tagLinks = [];
+                                    foreach ($record->tags as $tag) {
+                                        $tagLinks[] = "<a rel=\"tag\" href=\"" . TagResource::getUrl('view', ['slug' => $tag->slug]) . "\">$tag->name</a>";
+                                    }
+                                    return new HtmlString(implode(', ', $tagLinks));
+                                }),
+                            Infolists\Components\Split::make([]),
+                        ]),
                     ])
-                    ->width('100%')
-                    ->height('auto')
-                    ->hiddenLabel(),
-                Infolists\Components\TextEntry::make('content')
-                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
-                    ->size(TextEntrySize::Large)
-                    ->hiddenLabel(),
-                Infolists\Components\Split::make([
-                    Infolists\Components\TextEntry::make('tags')
-                        ->label('Теґи:')
-                        ->grow(false)
-                        ->inlineLabel()
-                        ->formatStateUsing(function (News $record): HtmlString {
-                            $tagLinks = [];
-                            foreach ($record->tags as $tag) {
-                                $tagLinks[] = "<a rel=\"tag\" href=\"" . TagResource::getUrl('view', ['slug' => $tag->slug]) . "\">$tag->name</a>";
-                            }
-                            return new HtmlString(implode(', ', $tagLinks));
-                        }),
-                    Infolists\Components\Split::make([]),
-                ]),
+                    ->columns(1)
             ])
             ->columns(1);
     }

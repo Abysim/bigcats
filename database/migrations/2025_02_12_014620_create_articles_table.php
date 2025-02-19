@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug');
             $table->integer('priority')->default(0)->unsigned();
             $table->string('title');
-            $table->text('content')->default('');
+            $table->text('content')->nullable();
             $table->string('image')->nullable();
             $table->string('image_caption', 1024)->nullable();
             $table->boolean('is_published')->default(false);
