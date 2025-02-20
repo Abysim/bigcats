@@ -24,15 +24,12 @@ trait HasCustomSEO
 
     protected function registerSeoRenderHook(string $header, string $canonicalUrl): void
     {
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::HEAD_START,
-            fn(): string => view('filament.seo-header', ['record' => new SEOData(
-                title: $header . ' | ' . config('app.name'),
-                url: $canonicalUrl,
-                canonical_url: $canonicalUrl,
-                openGraphTitle: $header,
-            )])->render()
-        );
+        FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo(new SEOData(
+            title: $header . ' | ' . config('app.name'),
+            url: $canonicalUrl,
+            canonical_url: $canonicalUrl,
+            openGraphTitle: $header,
+        )));
     }
 
     public function registerSEO(): void

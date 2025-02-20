@@ -34,10 +34,11 @@ class ViewNews extends ViewRecord
     {
         $this->record = $this->resolveRecord($record);
 
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::HEAD_START,
-            fn(): string => view('filament.seo-header', ['record' => $this->record])->render()
-        );
+        $os = '';
+        if (!empty($this->record->source_url)) {
+            $os = '<meta name="original-source" content="' . $this->record->source_url . '" />';
+        }
+        FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->record) . $os);
     }
 
     protected function resolveRecord(int | string $key): Model
