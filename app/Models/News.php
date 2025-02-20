@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
+use RalphJSmit\Laravel\SEO\Support\ImageMeta;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
 
 /**
  * @property int $id
@@ -31,7 +36,7 @@ use Illuminate\Support\Collection;
  */
 class News extends Model
 {
-    use HasFactory, HasBuilder;
+    use HasFactory, HasBuilder, HasSEO;
 
     /**
      * The attributes that are mass assignable.
@@ -67,5 +72,23 @@ class News extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function getDynamicSEOData(): SEOData
+    {
+        $seo = new SEOData(
+            title: $this->title . ' | ' . config('app.name'),
+            description: Str::of($this->content)->stripTags()->limit(160),
+            image: asset(Storage::url($this->image)),
+            imageMeta: new ImageMeta(public_path($this->image)),
+            type: 'article',
+            openGraphTitle: $this->date->format('d.m.Y') . ': '. $this->title,
+        );
+
+        if (!$this->is_original) {
+            $seo->markAsNoIndex();
+        }
+
+        return $seo;
     }
 }

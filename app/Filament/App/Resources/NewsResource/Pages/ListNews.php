@@ -4,12 +4,15 @@ namespace App\Filament\App\Resources\NewsResource\Pages;
 
 use App\Filament\App\Resources\NewsResource;
 use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
+use App\Traits\HasCustomSEO;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class ListNews extends ListRecords
 {
+    use HasCustomSEO;
+
     protected static string $resource = NewsResource::class;
 
     public string $yearSlug;
@@ -24,6 +27,8 @@ class ListNews extends ListRecords
         $this->yearSlug = request('year', '');
         $this->monthSlug = request('month', '');
         $this->daySlug = request('day', '');
+
+        $this->registerSEO();
     }
 
     protected function getTableQuery(): ?Builder

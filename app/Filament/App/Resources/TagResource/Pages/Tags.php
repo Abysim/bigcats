@@ -5,15 +5,23 @@ namespace App\Filament\App\Resources\TagResource\Pages;
 use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
 use App\Filament\App\Resources\TagResource;
 use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
+use App\Traits\HasCustomSEO;
 use Filament\Resources\Pages\Page;
 
 class Tags extends Page
 {
+    use HasCustomSEO;
+
     protected static ?string $title = 'Теґи';
 
     protected static string $resource = TagResource::class;
 
     protected static string $view = 'filament.app.resources.tag-resource.pages.tags';
+
+    public function mount(): void
+    {
+        $this->registerSEO();
+    }
 
     protected function getHeaderWidgets(): array
     {

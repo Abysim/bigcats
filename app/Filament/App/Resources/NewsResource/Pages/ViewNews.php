@@ -7,6 +7,8 @@ use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -26,6 +28,16 @@ class ViewNews extends ViewRecord
     public function getHeading(): string
     {
         return $this->getRecordTitle();
+    }
+
+    public function mount(int | string $record): void
+    {
+        $this->record = $this->resolveRecord($record);
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_START,
+            fn(): string => view('filament.seo-header', ['record' => $this->record])->render()
+        );
     }
 
     protected function resolveRecord(int | string $key): Model

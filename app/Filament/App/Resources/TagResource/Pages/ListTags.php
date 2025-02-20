@@ -5,13 +5,18 @@ namespace App\Filament\App\Resources\TagResource\Pages;
 use App\Filament\App\Resources\TagResource;
 use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use App\Models\Tag;
+use App\Traits\HasCustomSEO;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Throwable;
 
 class ListTags extends ListRecords
 {
+    use HasCustomSEO;
+
     protected static string $resource = TagResource::class;
+
+    protected ?string $heading = 'Теґ';
 
     public string $tagSlug;
 
@@ -19,6 +24,8 @@ class ListTags extends ListRecords
     {
         parent::mount(); // Call parent mount method if needed
         $this->tagSlug = request('slug', '');
+
+        $this->registerSEO();
     }
 
     protected function getTableQuery(): ?Builder

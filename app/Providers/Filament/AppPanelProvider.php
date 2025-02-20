@@ -40,6 +40,7 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->favicon(asset('icon.png'))
             ->viteTheme('resources/css/filament/app/theme.css')
             ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
             ->topNavigation();

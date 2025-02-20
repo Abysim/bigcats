@@ -1,0 +1,1 @@
+{!! seo($record ?? null) !!}
