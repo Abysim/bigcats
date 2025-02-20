@@ -16,6 +16,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use MarcoGermani87\FilamentCookieConsent\FilamentCookieConsent;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -44,6 +45,7 @@ class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
             ->renderHook(PanelsRenderHook::BODY_END, fn() => view('custom-footer'))
+            ->plugin(FilamentCookieConsent::make())
             ->topNavigation();
     }
 }
