@@ -6,14 +6,11 @@ return [
 
     'consent_button' => [
         'size' => 'lg',
-        'color' => 'warning',
+        'color' => 'info',
     ],
 
     'privacy_policy_button' => [
-        'enabled' => false,
-        'href' => '/privacy-policy',
-        'size' => 'sm',
+        'size' => 'lg',
         'color' => 'gray',
-        'target' => '_blank',
     ],
 ];
