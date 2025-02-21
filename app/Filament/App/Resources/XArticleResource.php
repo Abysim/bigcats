@@ -5,9 +5,16 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\ArticleResource\Pages;
 use App\Models\Article;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\TextEntry\TextEntrySize;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class XArticleResource extends Resource
 {
@@ -48,6 +55,50 @@ class XArticleResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make()
+                    ->schema([
+                        ImageEntry::make('image')
+                            ->extraImgAttributes(fn (Article $record): array => [
+                                'alt' => $record->image_caption,
+                            ])
+                            ->width('100%')
+                            ->height('auto')
+                            ->hiddenLabel(),
+                        TextEntry::make('content')
+                            ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
+                            ->size(TextEntrySize::Large)
+                            ->hiddenLabel(),
+                        RepeatableEntry::make('children')
+                            ->schema([
+                                TextEntry::make('title')
+                                    ->url(fn (Article $record): string => self::getUrl('view', [
+                                        'slug1' => $record->parent->slug,
+                                        'slug2' => $record->slug,
+                                    ]))
+                                    ->size(TextEntrySize::Large)
+                                    ->hiddenLabel(),
+                                ImageEntry::make('image')
+                                    ->extraImgAttributes(fn (Article $record): array => [
+                                        'alt' => $record->image_caption,
+                                    ])
+                                    ->width('100%')
+                                    ->height('auto')
+                                    ->hiddenLabel(),
+                                TextEntry::make('resume')
+                                    ->hiddenLabel(),
+                            ])
+                            ->hiddenLabel()
+                            ->grid(),
+                    ])
+                    ->columns(1)
+            ])
+            ->columns(1);
     }
 
     public static function getRelations(): array

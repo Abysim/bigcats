@@ -78,7 +78,7 @@ class News extends Model
     {
         $seo = new SEOData(
             title: $this->title . ' | ' . config('app.name'),
-            description: Str::of($this->content)->stripTags()->limit(160),
+            description: html_entity_decode(Str::of($this->content)->stripTags()->limit(160)),
             image: asset(Storage::url($this->image)),
             imageMeta: new ImageMeta(public_path($this->image)),
             type: 'article',

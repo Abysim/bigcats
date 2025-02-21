@@ -8,6 +8,7 @@ use Exception;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -52,7 +53,11 @@ class ArticleResource extends Resource
                             ->maxLength(255)
                             ->columnSpanFull()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state)))
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                if (empty($get('slug'))) {
+                                    $set('slug', Str::slug($state));
+                                }
+                            })
                             ->columnSpan(11),
                     ])
                     ->columns(12)
@@ -70,6 +75,9 @@ class ArticleResource extends Resource
                             ->columnSpan(3),
                     ])
                     ->collapsible(),
+                Textarea::make('resume')
+                    ->autosize()
+                    ->columnSpanFull(),
                 TiptapEditor::make('content')
                     ->columnSpanFull()
                     ->directory('articles'),
@@ -83,14 +91,14 @@ class ArticleResource extends Resource
                                 fn ($query, $record)
                                     => $record ? $query->whereNotIn('id', $record->getAllChildrenIds()) : $query
                             )
-                            ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, Article $record) =>
+                            ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, ?Article $record) =>
                                 $rule->where('slug', $get('slug'))->whereNot('id', $record->id ?? 0)
                             )
                             ->searchable()
                             ->columnSpan(5),
                         TextInput::make('slug')
                             ->required()
-                            ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, Article $record) =>
+                            ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, ?Article $record) =>
                                 $rule->where('parent_id', $get('parent_id'))->whereNot('id', $record->id ?? 0)
                             )
                             ->maxLength(255)

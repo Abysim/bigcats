@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
+use RalphJSmit\Laravel\SEO\Support\ImageMeta;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
 
 /**
  * Class Article
@@ -20,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string $slug
  * @property int $priority
  * @property string $title
+ * @property string $resume
  * @property string $content
  * @property string|null $image
  * @property string|null $image_caption
@@ -32,7 +38,7 @@ use Illuminate\Support\Carbon;
  */
 class Article extends Model
 {
-    use HasFactory, HasBuilder, HasChildren;
+    use HasFactory, HasBuilder, HasChildren, HasSEO;
 
     /**
      * The attributes that are mass assignable.
@@ -44,6 +50,7 @@ class Article extends Model
         'slug',
         'priority',
         'title',
+        'resume',
         'content',
         'image',
         'image_caption',
@@ -75,5 +82,17 @@ class Article extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Article::class, 'parent_id');
+    }
+
+    public function getDynamicSEOData(): SEOData
+    {
+        return new SEOData(
+            title: $this->title . ' | ' . config('app.name'),
+            description: html_entity_decode(Str::of($this->resume ?? $this->content)->stripTags()->limit(160)),
+            image: asset(Storage::url($this->image)),
+            imageMeta: new ImageMeta(public_path($this->image)),
+            type: 'article',
+            openGraphTitle: $this->title,
+        );
     }
 }
