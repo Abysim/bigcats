@@ -50,7 +50,7 @@ class NewsResource extends Resource
                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                 $createdAt = $get('created_at');
                                 if (!$createdAt || now()->diffInDays($createdAt) <= 1) {
-                                    $set('slug', Str::slug($state));
+                                    $set('slug', Str::slug($state, language: config('app.locale')));
                                 }
                             })
                             ->columnSpan(6),

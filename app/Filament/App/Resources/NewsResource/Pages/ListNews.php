@@ -6,6 +6,8 @@ use App\Filament\App\Resources\NewsResource;
 use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use App\Traits\HasCustomSEO;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
@@ -29,6 +31,10 @@ class ListNews extends ListRecords
         $this->daySlug = request('day', '');
 
         $this->registerSEO();
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_START,
+            fn(): string => '<link rel="alternate" type="application/rss+xml" title="Новини" href="/feed.xml">'
+        );
     }
 
     protected function getTableQuery(): ?Builder

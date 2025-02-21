@@ -89,8 +89,7 @@ class Article extends Model
         return new SEOData(
             title: $this->title . ' | ' . config('app.name'),
             description: html_entity_decode(Str::of($this->resume ?? $this->content)->stripTags()->limit(160)),
-            image: asset(Storage::url($this->image)),
-            imageMeta: new ImageMeta(public_path($this->image)),
+            image: Storage::url($this->image),
             type: 'article',
             openGraphTitle: $this->title,
         );

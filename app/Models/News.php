@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\App\Resources\NewsResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\Model;
@@ -10,9 +11,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RalphJSmit\Laravel\SEO\Support\AlternateTag;
 use RalphJSmit\Laravel\SEO\Support\HasSEO;
-use RalphJSmit\Laravel\SEO\Support\ImageMeta;
 use RalphJSmit\Laravel\SEO\Support\SEOData;
+use Spatie\Feed\Feedable;
+use Spatie\Feed\FeedItem;
 
 /**
  * @property int $id
@@ -34,7 +37,7 @@ use RalphJSmit\Laravel\SEO\Support\SEOData;
  * @property Carbon $updated_at
  * @property Collection|Tag[] $tags
  */
-class News extends Model
+class News extends Model implements Feedable
 {
     use HasFactory, HasBuilder, HasSEO;
 
@@ -79,8 +82,7 @@ class News extends Model
         $seo = new SEOData(
             title: $this->title . ' | ' . config('app.name'),
             description: html_entity_decode(Str::of($this->content)->stripTags()->limit(160)),
-            image: asset(Storage::url($this->image)),
-            imageMeta: new ImageMeta(public_path($this->image)),
+            image: Storage::url($this->image),
             type: 'article',
             openGraphTitle: $this->date->format('d.m.Y') . ': '. $this->title,
         );
@@ -90,5 +92,42 @@ class News extends Model
         }
 
         return $seo;
+    }
+
+    public function toFeedItem(): FeedItem
+    {
+        $link = NewsResource::getUrl('view', [
+            'year' => $this->year,
+            'month' => $this->month,
+            'day' => $this->day,
+            'record' => $this->slug,
+        ], panel: 'app');
+
+        return FeedItem::create()
+            ->id($link)
+            ->title($this->title)
+            ->summary($this->getImageP() . $this->content)
+            ->updated($this->updated_at)
+            ->link($this->is_original ? $link : $this->source_url)
+            ->authorName($this->is_original ? config('app.name') : $this->source_name)
+            ->category(...$this->tags->pluck('name'));
+    }
+
+    public function getImageP(): string
+    {
+        if (!$this->image) {
+            return '';
+        }
+
+        return '<p><img src="' . asset(Storage::url($this->image)) . '" alt="' . $this->image_caption . '"></p>';
+    }
+
+    public static function getFeedItems(): Collection
+    {
+        return News::query()
+            ->where('is_published', true)
+            ->orderBy('date', 'desc')
+            ->limit(10)
+            ->get();
     }
 }

@@ -55,7 +55,7 @@ class ArticleResource extends Resource
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, callable $set, Get $get) {
                                 if (empty($get('slug'))) {
-                                    $set('slug', Str::slug($state));
+                                    $set('slug', Str::slug($state, language: config('app.locale')));
                                 }
                             })
                             ->columnSpan(11),
