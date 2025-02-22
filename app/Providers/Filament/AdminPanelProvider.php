@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Cmsmaxinc\FilamentErrorPages\FilamentErrorPagesPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -23,7 +24,6 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
             ->id('admin')
             ->path('admin')
             ->login()
@@ -53,6 +53,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                FilamentErrorPagesPlugin::make(),
             ])
             ->viteTheme('resources/css/filament/admin/theme.css');
     }

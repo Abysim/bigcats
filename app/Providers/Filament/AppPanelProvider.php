@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Cmsmaxinc\FilamentErrorPages\FilamentErrorPagesPlugin;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
@@ -22,6 +23,7 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
             ->id('app')
             ->path('')
             ->colors([
@@ -44,10 +46,13 @@ class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
             ->renderHook(PanelsRenderHook::BODY_END, fn() => view('filament.app.custom-footer'))
-            ->plugin(FilamentCookieConsent::make())
             ->brandLogo(asset('images/full-logo.png'))
             ->darkModeBrandLogo(asset('images/full-logo-dark.png'))
             ->brandLogoHeight('3rem')
+            ->plugins([
+                FilamentErrorPagesPlugin::make(),
+                FilamentCookieConsent::make(),
+            ])
             ->topNavigation();
     }
 }

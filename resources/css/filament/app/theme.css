@@ -3,7 +3,7 @@
 
 @config 'tailwind.config.js';
 
-p {
+dd p {
     margin-bottom: 1rem;
     text-align: justify;
 }
