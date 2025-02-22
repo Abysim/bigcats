@@ -33,7 +33,7 @@ class ListNews extends ListRecords
         $this->registerSEO();
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
-            fn(): string => '<link rel="alternate" type="application/rss+xml" title="Новини" href="/feed.xml">'
+            fn() => '<link rel="alternate" type="application/rss+xml" title="Новини" href="' . asset('news.xml') . '">'
         );
     }
 

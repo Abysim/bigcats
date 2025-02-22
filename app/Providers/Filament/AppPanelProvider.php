@@ -4,7 +4,6 @@ namespace App\Providers\Filament;
 
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -41,11 +40,14 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->favicon(asset('icon.png'))
+            ->favicon(asset('images/icon.png'))
             ->viteTheme('resources/css/filament/app/theme.css')
             ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
             ->renderHook(PanelsRenderHook::BODY_END, fn() => view('filament.app.custom-footer'))
             ->plugin(FilamentCookieConsent::make())
+            ->brandLogo(asset('images/full-logo.png'))
+            ->darkModeBrandLogo(asset('images/full-logo-dark.png'))
+            ->brandLogoHeight('3rem')
             ->topNavigation();
     }
 }
