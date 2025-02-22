@@ -6,7 +6,7 @@ return [
 
     'consent_button' => [
         'size' => 'lg',
-        'color' => 'info',
+        'color' => 'primary',
     ],
 
     'privacy_policy_button' => [

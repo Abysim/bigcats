@@ -44,7 +44,7 @@ class AppPanelProvider extends PanelProvider
             ->favicon(asset('icon.png'))
             ->viteTheme('resources/css/filament/app/theme.css')
             ->maxContentWidth(MaxWidth::ScreenTwoExtraLarge)
-            ->renderHook(PanelsRenderHook::BODY_END, fn() => view('custom-footer'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn() => view('filament.app.custom-footer'))
             ->plugin(FilamentCookieConsent::make())
             ->topNavigation();
     }

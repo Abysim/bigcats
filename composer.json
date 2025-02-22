@@ -11,6 +11,7 @@
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
         "marcogermani87/filament-cookie-consent": "^1.0",
+        "owenvoke/blade-fontawesome": "^2.9",
         "ralphjsmit/laravel-filament-seo": "^1.4",
         "spatie/laravel-feed": "^4.4"
     },
