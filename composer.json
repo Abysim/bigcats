@@ -9,6 +9,7 @@
         "awcodes/filament-tiptap-editor": "^3.5",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.31",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "marcogermani87/filament-cookie-consent": "^1.0",
         "owenvoke/blade-fontawesome": "^2.9",

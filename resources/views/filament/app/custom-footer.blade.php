@@ -4,7 +4,7 @@
             <a href="https://t.me/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Телеграм" target="_blank" rel="me">
                 <x-fab-telegram-plane class="w-12 h-12" alt="Іконка Телеграм" />
             </a>
-            <a href="https://instagram.com/bigcats.ua" class="text-gray-700 dark:text-primary-400" title="Інстаграм" target="_blank" rel="me">
+            <a href="https://instagram.com/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Інстаграм" target="_blank" rel="me">
                 <x-fab-instagram class="w-12 h-12" alt="Іконка Інстаграм" />
             </a>
             <a href="https://bsky.app/profile/bigcats.org.ua" class="text-gray-700 dark:text-primary-400" title="Блюскай" target="_blank" rel="me">
