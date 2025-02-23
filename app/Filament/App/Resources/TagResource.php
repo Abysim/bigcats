@@ -40,10 +40,7 @@ class TagResource extends Resource
                     ImageColumn::make('image')
                         ->width(160)
                         ->height(120)
-                        ->extraImgAttributes(fn (News $record): array => [
-                            'alt' => $record->image_caption,
-                            'title' => $record->image_caption
-                        ])
+                        ->extraImgAttributes(fn (News $record): array => ['alt' => $record->image_caption])
                         ->grow(false),
                     Stack::make([
                         Split::make([
