@@ -41,6 +41,7 @@ class TagResource extends Resource
                         ->width(160)
                         ->height(120)
                         ->extraImgAttributes(fn (News $record): array => ['alt' => $record->image_caption])
+                        ->alignCenter()
                         ->grow(false),
                     Stack::make([
                         Split::make([
@@ -56,7 +57,8 @@ class TagResource extends Resource
                             ->formatStateUsing(fn($state) => html_entity_decode(Str::of($state)->stripTags()->words(80)))
                             ->copyable(),
                     ]),
-                ]),
+                ])
+                ->from('sm'),
             ])
             ->recordUrl(
                 fn (News $record): string => NewsResource::getUrl('view', [
