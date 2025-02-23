@@ -61,8 +61,7 @@ class NewsResource extends Resource
                                 ->weight(FontWeight::Bold)
                         ]),
                         TextColumn::make('content')
-                            ->formatStateUsing(fn($state) => html_entity_decode(Str::of($state)->stripTags()->words(64)))
-                            ->copyable(),
+                            ->formatStateUsing(fn($state) => html_entity_decode(Str::of($state)->stripTags()->words(64))),
                     ]),
                 ])
                 ->from('sm'),
