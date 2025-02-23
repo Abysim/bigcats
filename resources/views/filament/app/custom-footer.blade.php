@@ -4,19 +4,19 @@
             <a href="https://t.me/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Телеграм" target="_blank" rel="me">
                 <x-fab-telegram-plane class="w-12 h-12" alt="Іконка Телеграм" />
             </a>
-            <a href="https://instagram.com/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Інстаграм" target="_blank" rel="me">
+            <a href="https://www.instagram.com/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Інстаграм" target="_blank" rel="me">
                 <x-fab-instagram class="w-12 h-12" alt="Іконка Інстаграм" />
             </a>
             <a href="https://bsky.app/profile/bigcats.org.ua" class="text-gray-700 dark:text-primary-400" title="Блюскай" target="_blank" rel="me">
                 <x-fab-bluesky class="w-12 h-12" alt="Іконка Блюскай" />
             </a>
-            <a href="https://threads.net/@bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Тредс" target="_blank" rel="me">
+            <a href="https://www.threads.net/@bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Тредс" target="_blank" rel="me">
                 <x-fab-threads class="w-12 h-12" alt="Іконка Тредс" />
             </a>
             <a href="https://twitter.com/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Твіттер" target="_blank" rel="me">
                 <x-fab-twitter class="w-12 h-12" alt="Іконка Твіттер" />
             </a>
-            <a href="https://facebook.com/bigcats.ua" class="text-gray-700 dark:text-primary-400" title="Фейсбук" target="_blank" rel="me">
+            <a href="https://www.facebook.com/bigcats.ua" class="text-gray-700 dark:text-primary-400" title="Фейсбук" target="_blank" rel="me">
                 <x-fab-facebook-f class="w-11 h-11" alt="Іконка Фейсбук" />
             </a>
         </div>
