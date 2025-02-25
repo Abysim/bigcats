@@ -3,11 +3,6 @@
 
 @config 'tailwind.config.js';
 
-dd p {
-    margin-bottom: 1rem;
-    text-align: justify;
-}
-
 @media (min-width: 64rem) {
     section > div > div.grid {
         grid-auto-flow: column;

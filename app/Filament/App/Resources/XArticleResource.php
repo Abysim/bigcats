@@ -73,6 +73,7 @@ class XArticleResource extends Resource
                         TextEntry::make('content')
                             ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
                             ->size(TextEntrySize::Large)
+                            ->prose()
                             ->hiddenLabel(),
                         RepeatableEntry::make('children')
                             ->schema([
