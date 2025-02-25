@@ -30,7 +30,8 @@ class LatestNews extends BaseWidget
             ->query(
                 News::query()
                     ->where('is_published', true)
-                    ->latest('date')
+                    ->orderBy('date', 'desc')
+                    ->orderBy('updated_at', 'desc')
                     ->limit($this->count)
             )
             ->heading($this->header)

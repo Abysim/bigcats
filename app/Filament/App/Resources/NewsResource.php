@@ -71,7 +71,6 @@ class NewsResource extends Resource
                     'record' => $record->slug,
                 ]),
             )
-            ->defaultSort('date', 'desc')
             ->filters([
                 //
             ])
@@ -157,7 +156,7 @@ class NewsResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('is_published', true);
+        return parent::getEloquentQuery()->where('is_published', true)->orderBy('date', 'desc')->orderBy('updated_at', 'desc');
     }
 
     public static function getGlobalSearchResultUrl(Model $record): string
