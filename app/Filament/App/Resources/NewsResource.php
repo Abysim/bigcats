@@ -114,7 +114,7 @@ class NewsResource extends Resource
                             ->hiddenLabel(),
                         Infolists\Components\TextEntry::make('content')
                             ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
-                            ->size(TextEntrySize::Large)
+                            ->size(TextEntrySize::Medium)
                             ->prose()
                             ->hiddenLabel(),
                         Infolists\Components\Split::make([

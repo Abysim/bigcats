@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -47,9 +48,8 @@ class NewsResource extends Resource
                             ->maxLength(255)
                             ->columnSpanFull()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                $createdAt = $get('created_at');
-                                if (!$createdAt || now()->diffInDays($createdAt) <= 1) {
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                if (empty($get('slug'))) {
                                     $set('slug', Str::slug($state, language: config('app.locale')));
                                 }
                             })
