@@ -127,7 +127,8 @@ class News extends Model implements Feedable
         return News::query()
             ->where('is_published', true)
             ->orderBy('date', 'desc')
-            ->limit(10)
+            ->orderBy('updated_at', 'desc')
+            ->limit(20)
             ->get();
     }
 }
