@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Filament\App\Resources\NewsResource;
 use App\Models\News;
 use App\Models\Tag;
-use Filament\Support\Markdown;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -87,7 +86,7 @@ class NewsController extends Controller
         $news = new News();
         $news->title = $request->get('title');
         $news->slug = Str::slug($request->get('title'), language: config('app.locale'));
-        $news->content = (new Markdown($request->get('content')))->toHtml();
+        $news->content = Str::markdown($request->get('content'));
         $news->date = $request->get('date');
         $news->image_caption = $request->get('image_caption');
         $news->is_original = $request->get('is_original');
