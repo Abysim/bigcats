@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Pages;
 use App\Models\Article;
+use App\Models\News;
 use Exception;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
@@ -53,9 +54,9 @@ class ArticleResource extends Resource
                             ->maxLength(255)
                             ->columnSpanFull()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
-                                if (empty($get('slug'))) {
-                                    $set('slug', Str::slug($state, language: config('app.locale')));
+                            ->afterStateUpdated(function ($state, callable $set, Get $get, ?Article $record) {
+                                if (empty($get('slug')) || empty($record->slug)) {
+                                    $set('slug', $record->slug ?? Str::slug($state, language: config('app.locale')));
                                 }
                             })
                             ->columnSpan(11),
