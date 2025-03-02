@@ -1,4 +1,7 @@
-<footer class="mx-auto h-full w-full px-4 md:px-6 lg:px-8 max-w-screen-2xl pb-6">
+<footer class="mx-auto h-full w-full px-4 md:px-6 lg:px-8 max-w-screen-2xl pb-6 flex flex-col md:flex-row justify-between items-center">
+    <p class="text-xs mb-4 md:mb-0 md:mr-4">
+        Місія цього некомерційного проєкту — поширювати актуальну інформацію про великих котів серед українців. Усі матеріали взято з відкритих джерел або перекладено з іноземних публікацій, а права на них належать їхнім правовласникам. Якщо маєте зауваження чи пропозиції, будь ласка, зв'яжіться з нами.
+    </p>
     <div class="text-center md:text-right px-1">
         <div class="inline-flex gap-3">
             <a href="https://t.me/bigcats_ua" class="text-gray-700 dark:text-primary-400" title="Телеграм" target="_blank" rel="me">
