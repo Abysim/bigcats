@@ -10,12 +10,6 @@
             const REJECT_VALUE = 0;
             const COOKIE_DOMAIN = '{{ config('session.domain') ?? request()->getHost() }}';
 
-            function consentWithCookies() {
-                setCookie('{{ $cookieConsentConfig['cookie_name'] }}', COOKIE_VALUE, {{ $cookieConsentConfig['cookie_lifetime'] }});
-                hideCookieDialog();
-                consentGranted();
-            }
-
             function refuseWithCookies() {
                 setCookie('{{ $cookieConsentConfig['cookie_name'] }}', REJECT_VALUE, {{ $cookieConsentConfig['cookie_lifetime'] }});
                 hideCookieDialog();
@@ -47,12 +41,6 @@
                 hideCookieDialog();
             }
 
-            const buttons = document.getElementsByClassName('js-cookie-consent-agree');
-
-            for (let i = 0; i < buttons.length; ++i) {
-                buttons[i].addEventListener('click', consentWithCookies);
-            }
-
             const refuseButtons = document.getElementsByClassName('js-cookie-consent-refuse');
 
             for (let i = 0; i < refuseButtons.length; ++i) {
@@ -60,7 +48,6 @@
             }
 
             return {
-                consentWithCookies: consentWithCookies,
                 refuseWithCookies: refuseWithCookies,
                 hideCookieDialog: hideCookieDialog
             };

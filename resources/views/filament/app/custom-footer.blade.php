@@ -47,18 +47,3 @@
     gtag('config', 'G-2KC7QMPCBG');
 </script>
 <!-- End Google tag (gtag.js) -->
-<script>
-    function consentGranted() {
-        gtag('consent', 'update', {
-            'ad_storage': 'granted',
-            'ad_user_data': 'granted',
-            'ad_personalization': 'granted',
-            'analytics_storage': 'granted'
-        });
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        if (document.cookie.includes('laravel_cookie_consent=1')) {
-            consentGranted();
-        }
-    });
-</script>
