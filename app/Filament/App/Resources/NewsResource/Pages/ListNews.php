@@ -30,7 +30,6 @@ class ListNews extends ListRecords
         $this->monthSlug = request('month', '');
         $this->daySlug = request('day', '');
 
-        $this->registerSEO();
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_START,
             fn() => '<link rel="alternate" type="application/rss+xml" title="Новини" href="' . asset('news.xml') . '">'
@@ -57,6 +56,8 @@ class ListNews extends ListRecords
                 }
             });
         }
+
+        $this->registerSEO((clone $query)->count() <= 4);
 
         return $query;
     }

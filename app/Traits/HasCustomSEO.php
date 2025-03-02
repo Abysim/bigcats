@@ -22,17 +22,18 @@ trait HasCustomSEO
         return $canonicalUrl;
     }
 
-    protected function registerSeoRenderHook(string $header, string $canonicalUrl): void
+    protected function registerSeoRenderHook(string $header, string $canonicalUrl, bool $noIndex = false): void
     {
         FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo(new SEOData(
             title: $header . ' | ' . config('app.name'),
             url: $canonicalUrl,
+            robots: $noIndex ? 'noindex' : null,
             canonical_url: $canonicalUrl,
             openGraphTitle: $header,
         )));
     }
 
-    public function registerSEO(): void
+    public function registerSEO($noIndex = false): void
     {
         $canonicalUrl = $this->generateCanonicalUrl();
         $header = BasePage::getHeading() == $this->getHeading()
@@ -42,6 +43,6 @@ trait HasCustomSEO
             $header = $homepageTitle;
         }
 
-        $this->registerSeoRenderHook($header, $canonicalUrl);
+        $this->registerSeoRenderHook($header, $canonicalUrl, $noIndex);
     }
 }

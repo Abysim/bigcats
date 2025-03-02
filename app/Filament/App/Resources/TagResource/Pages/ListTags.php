@@ -24,8 +24,6 @@ class ListTags extends ListRecords
     {
         parent::mount(); // Call parent mount method if needed
         $this->tagSlug = request('slug', '');
-
-        $this->registerSEO();
     }
 
     protected function getTableQuery(): ?Builder
@@ -37,6 +35,8 @@ class ListTags extends ListRecords
                 $query->where('slug', $slug);
             });
         }
+
+        $this->registerSEO((clone $query)->count() <= 4);
 
         return $query;
     }
