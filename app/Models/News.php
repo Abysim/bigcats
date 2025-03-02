@@ -154,8 +154,8 @@ class News extends Model implements Feedable, Sitemapable
 
     protected static function booted(): void
     {
-        static::created(function () {
-            Artisan::call('sitemap:generate', ['timestamp' => $this->created_at->timestamp]);
+        static::created(function (News $model) {
+            Artisan::call('sitemap:generate', ['timestamp' => $model->created_at->timestamp]);
         });
     }
 }
