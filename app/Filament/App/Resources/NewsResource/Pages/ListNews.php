@@ -57,7 +57,7 @@ class ListNews extends ListRecords
             });
         }
 
-        $this->registerSEO((clone $query)->count() <= 4);
+        $this->registerSEO($query->count() <= 4);
 
         return $query;
     }
