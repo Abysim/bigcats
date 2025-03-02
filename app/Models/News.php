@@ -9,13 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use RalphJSmit\Laravel\SEO\Support\AlternateTag;
 use RalphJSmit\Laravel\SEO\Support\HasSEO;
 use RalphJSmit\Laravel\SEO\Support\SEOData;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
+use Spatie\Sitemap\Contracts\Sitemapable;
+use Spatie\Sitemap\Tags\Url;
 
 /**
  * @property int $id
@@ -37,7 +39,7 @@ use Spatie\Feed\FeedItem;
  * @property Carbon $updated_at
  * @property Collection|Tag[] $tags
  */
-class News extends Model implements Feedable
+class News extends Model implements Feedable, Sitemapable
 {
     use HasFactory, HasBuilder, HasSEO;
 
@@ -70,6 +72,8 @@ class News extends Model implements Feedable
         'date' => 'date',
         'is_original' => 'boolean',
         'is_published' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function tags(): BelongsToMany
@@ -94,14 +98,19 @@ class News extends Model implements Feedable
         return $seo;
     }
 
-    public function toFeedItem(): FeedItem
+    public function getUrl(): string
     {
-        $link = NewsResource::getUrl('view', [
+        return NewsResource::getUrl('view', [
             'year' => $this->year,
             'month' => $this->month,
             'day' => $this->day,
             'record' => $this->slug,
         ], panel: 'app');
+    }
+
+    public function toFeedItem(): FeedItem
+    {
+        $link = $this->getUrl();
 
         return FeedItem::create()
             ->id($link)
@@ -130,5 +139,23 @@ class News extends Model implements Feedable
             ->orderBy('updated_at', 'desc')
             ->limit(20)
             ->get();
+    }
+
+    public function toSitemapTag(): Url | string | array
+    {
+        $url = Url::create($this->getUrl())->setLastModificationDate($this->updated_at);
+
+        if ($this->created_at->diffInDays() <= 2) {
+            $url->addNews(config('app.name'), config('app.locale'), $this->title, $this->date);
+        }
+
+        return $url;
+    }
+
+    protected static function booted(): void
+    {
+        static::created(function () {
+            Artisan::call('sitemap:generate', ['timestamp' => $this->created_at->timestamp]);
+        });
     }
 }
