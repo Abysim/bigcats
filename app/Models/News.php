@@ -128,7 +128,7 @@ class News extends Model implements Feedable, Sitemapable
             return '';
         }
 
-        return '<p><img src="' . asset(Storage::url($this->image)) . '" alt="' . addslashes($this->image_caption) . '"></p>';
+        return '<p><img src="' . asset(Storage::url($this->image)) . '" alt="' . htmlspecialchars($this->image_caption) . '"></p>';
     }
 
     public static function getFeedItems(): Collection
