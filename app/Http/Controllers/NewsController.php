@@ -127,7 +127,7 @@ class NewsController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'image' => $news->image,
+            'image' => $news->image ? asset(Storage::url($news->image)) : '',
             'url' => NewsResource::getUrl('view', [
                 'year' => $news->year,
                 'month' => $news->month,
