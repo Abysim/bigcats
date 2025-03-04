@@ -127,7 +127,7 @@ class ArticleResource extends Resource
                     ->sortable(),
                 ImageColumn::make('image')
                     ->extraImgAttributes(fn (Article $record): array => [
-                        'alt' => $record->image_caption,
+                        'alt' => addslashes($record->image_caption),
                         'title' => $record->image_caption,
                     ]),
                 TextColumn::make('title')

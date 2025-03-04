@@ -65,7 +65,7 @@ class XArticleResource extends Resource
                     ->schema([
                         ImageEntry::make('image')
                             ->extraImgAttributes(fn (Article $record): array => [
-                                'alt' => $record->image_caption,
+                                'alt' => addslashes($record->image_caption),
                             ])
                             ->width('100%')
                             ->height('auto')
@@ -86,7 +86,7 @@ class XArticleResource extends Resource
                                     ->hiddenLabel(),
                                 ImageEntry::make('image')
                                     ->extraImgAttributes(fn (Article $record): array => [
-                                        'alt' => $record->image_caption,
+                                        'alt' => addslashes($record->image_caption),
                                     ])
                                     ->width('100%')
                                     ->height('auto')

@@ -44,7 +44,7 @@ class NewsResource extends Resource
                     ImageColumn::make('image')
                         ->width(160)
                         ->height(120)
-                        ->extraImgAttributes(fn (News $record): array => ['alt' => $record->image_caption])
+                        ->extraImgAttributes(fn (News $record): array => ['alt' => addslashes($record->image_caption)])
                         ->alignCenter()
                         ->grow(false),
                     Stack::make([
@@ -107,7 +107,7 @@ class NewsResource extends Resource
                         ]),
                         Infolists\Components\ImageEntry::make('image')
                             ->extraImgAttributes(fn (News $record): array => [
-                                'alt' => $record->image_caption,
+                                'alt' => addslashes($record->image_caption),
                             ])
                             ->width('100%')
                             ->height('auto')

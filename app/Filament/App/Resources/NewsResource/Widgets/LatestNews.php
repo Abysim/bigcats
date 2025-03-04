@@ -40,7 +40,7 @@ class LatestNews extends BaseWidget
                     ImageColumn::make('image')
                         ->width('100%')
                         ->height('auto')
-                        ->extraImgAttributes(fn (News $record): array => ['alt' => $record->image_caption]),
+                        ->extraImgAttributes(fn (News $record): array => ['alt' => addslashes($record->image_caption)]),
                     TextColumn::make('title')
                         ->formatStateUsing(
                             fn (News $record, string $state): string => $record->date->format('d.m.Y') . ': ' . $state

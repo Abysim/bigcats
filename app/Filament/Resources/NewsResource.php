@@ -113,7 +113,7 @@ class NewsResource extends Resource
             ->columns([
                 ImageColumn::make('image')
                     ->extraImgAttributes(fn (News $record): array => [
-                        'alt' => $record->image_caption,
+                        'alt' => addslashes($record->image_caption),
                         'title' => $record->image_caption,
                     ]),
                 TextColumn::make('date')
