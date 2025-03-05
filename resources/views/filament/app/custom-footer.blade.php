@@ -45,5 +45,7 @@
     gtag('js', new Date());
 
     gtag('config', 'G-2KC7QMPCBG');
+
+    localStorage.setItem("isOpen", "false");
 </script>
 <!-- End Google tag (gtag.js) -->
