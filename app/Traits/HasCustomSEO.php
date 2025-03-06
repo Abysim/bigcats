@@ -12,6 +12,8 @@ use RalphJSmit\Laravel\SEO\Support\SEOData;
  */
 trait HasCustomSEO
 {
+    protected static $hasRegistredSEO = false;
+
     protected function generateCanonicalUrl(): string
     {
         $canonicalUrl = url()->current();
@@ -35,6 +37,11 @@ trait HasCustomSEO
 
     public function registerSEO($noIndex = false): void
     {
+        if (static::$hasRegistredSEO) {
+            return;
+        }
+        static::$hasRegistredSEO = true;
+
         $canonicalUrl = $this->generateCanonicalUrl();
         $header = BasePage::getHeading() == $this->getHeading()
             ? BasePage::getHeading()
