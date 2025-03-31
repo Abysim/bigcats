@@ -62,7 +62,7 @@ class ViewNews extends ViewRecord
 
         $breadcrumbs[$link . '/' . request('year')] = request('year');
         $breadcrumbs[$link . '/' . request('year') . '/' . request('month')] =
-            Carbon::createFromFormat('m', request('month'))->translatedFormat('F');
+            Carbon::createFromFormat('d-m', '01-' . request('month'))->translatedFormat('F');
         $breadcrumbs[$link . '/' . request('year') . '/' . request('month') . '/' . request('day')] = request('day');
         $breadcrumbs[] = '';
 

@@ -102,7 +102,7 @@ class ListNews extends ListRecords
             }
             if ($this->daySlug) {
                 $breadcrumbs[$link . '/' . $this->yearSlug . '/' . $this->monthSlug] =
-                    Carbon::createFromFormat('m', $this->monthSlug)->translatedFormat('F');
+                    Carbon::createFromFormat('d-m', '01-' . $this->monthSlug)->translatedFormat('F');
             }
             $breadcrumbs[] = '';
 
