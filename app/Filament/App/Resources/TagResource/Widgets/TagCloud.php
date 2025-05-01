@@ -14,6 +14,8 @@ class TagCloud extends Widget
 
     protected int | string | array $columnSpan = 'full';
 
+    protected static bool $isLazy = false;
+
     public string $relation = 'news';
 
     public $minSize = 10;
