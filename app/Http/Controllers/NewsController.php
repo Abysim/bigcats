@@ -120,7 +120,7 @@ class NewsController extends Controller
 
     protected function syncTags(Request $request, News $news)
     {
-        $news->tags()->sync(Tag::whereIn('name', $request->get('tags'))->pluck('id'));
+        $news->tags()->sync(Tag::whereIn('short_name', $request->get('tags'))->pluck('id'));
     }
 
     protected function successResponse(News $news)
