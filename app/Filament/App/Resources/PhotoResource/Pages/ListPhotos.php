@@ -37,6 +37,7 @@ class ListPhotos extends Page
     protected function getViewData(): array
     {
         $photos = static::getResource()::getEloquentQuery()
+            ->select(['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height'])
             ->take($this->perPage + 1)
             ->get();
 
