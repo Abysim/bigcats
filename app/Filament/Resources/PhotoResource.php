@@ -50,11 +50,13 @@ class PhotoResource extends Resource
                         TextInput::make('flickr_link')
                             ->required()
                             ->url()
+                            ->rules(['regex:/^https?:\/\//i'])
                             ->maxLength(1024)
                             ->columnSpanFull(),
                         TextInput::make('thumbnail_url')
                             ->required()
                             ->url()
+                            ->rules(['regex:/^https?:\/\//i'])
                             ->maxLength(1024)
                             ->columnSpanFull(),
                         TextInput::make('thumbnail_width')
@@ -108,7 +110,7 @@ class PhotoResource extends Resource
                 TextColumn::make('tags')
                     ->wrap()
                     ->formatStateUsing(fn (Photo $record): string => $record->tags->pluck('name')->join(', '))
-                    ->searchable(),
+                    ->searchable(query: fn ($query, string $search): mixed => $query->whereHas('tags', fn ($q) => $q->where('name', 'like', "%{$search}%"))),
                 ToggleColumn::make('is_published'),
                 TextColumn::make('created_at')
                     ->dateTime()

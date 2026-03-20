@@ -12,7 +12,7 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 ## Tech Stack
 - **Framework**: Laravel 11
 - **Language**: PHP 8.3
-- **`p`** = `/usr/local/bin/p` (PHP 8.3 binary, NOT an alias). **System `php` is 7.2 — NEVER change it**, other projects depend on it
+- **`p`** = `/usr/local/bin/p` (PHP 8.3 binary, NOT an alias). **ALWAYS use `p` locally, NEVER `php`** — system `php` is 7.2 and will break Laravel. Other projects depend on system PHP staying at 7.2
 - **`c`** = `/usr/local/bin/c` (Composer binary)
 - **Frontend build**: `npm run build` (Vite) — required after changing JS/CSS assets
 - **Admin**: Filament

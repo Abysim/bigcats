@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Photo;
 use App\Models\Tag;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,12 +17,17 @@ class PhotoController extends Controller
             return $this->validationErrorResponse($validator);
         }
 
-        if ($this->photoExists($request)) {
-            return $this->photoExistsErrorResponse();
+        $photo = $this->createPhoto($request);
+
+        try {
+            $photo->save();
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return $this->photoExistsErrorResponse();
+            }
+            throw $e;
         }
 
-        $photo = $this->createPhoto($request);
-        $photo->save();
         $this->syncTags($request, $photo);
 
         return $this->successResponse($photo);
@@ -32,8 +38,8 @@ class PhotoController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'author_name' => 'required|string|max:255',
-            'flickr_link' => ['required', 'url', 'max:1024', 'regex:/^https?:\/\//i'],
-            'thumbnail_url' => ['required', 'url', 'max:1024', 'regex:/^https?:\/\//i'],
+            'flickr_link' => 'required|url|max:1024',
+            'thumbnail_url' => 'required|url|max:1024',
             'thumbnail_width' => 'required|integer|min:1',
             'thumbnail_height' => 'required|integer|min:1',
             'tags' => 'required|array',
@@ -52,13 +58,6 @@ class PhotoController extends Controller
             'status' => 'error',
             'errors' => $errors,
         ], 400);
-    }
-
-    protected function photoExists(Request $request)
-    {
-        return Photo::query()
-            ->where('flickr_link', $request->flickr_link)
-            ->exists();
     }
 
     protected function photoExistsErrorResponse()
