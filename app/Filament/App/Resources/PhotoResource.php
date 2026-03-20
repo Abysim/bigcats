@@ -28,6 +28,6 @@ class PhotoResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('is_published', true)->orderBy('created_at', 'desc');
+        return parent::getEloquentQuery()->where('is_published', true);
     }
 }
