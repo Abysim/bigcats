@@ -41,17 +41,11 @@ class ListPhotos extends Page
     {
         $query = static::getResource()::getEloquentQuery()
             ->select(['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height', 'created_at'])
-            ->orderBy('id', 'desc');
+            ->reorder()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
         if (!empty($this->photos)) {
             $last = end($this->photos);
-            $query->where(function ($q) use ($last) {
-                $q->where('created_at', '<', $last['created_at'])
-                  ->orWhere(function ($q2) use ($last) {
-                      $q2->where('created_at', '=', $last['created_at'])
-                         ->where('id', '<', $last['id']);
-                  });
-            });
+            $query->whereRaw('(created_at, id) < (?, ?)', [$last['created_at'], $last['id']]);
         }
 
         $batch = $query->take(self::PAGE_SIZE + 1)->get();

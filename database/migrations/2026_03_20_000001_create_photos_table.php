@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('thumbnail_height');
             $table->boolean('is_published')->default(true);
             $table->timestamps();
-            $table->index(['is_published', 'created_at']);
+            $table->index(['is_published', 'created_at', 'id']);
         });
     }
 
