@@ -17,11 +17,14 @@ class ListPhotos extends Page
 
     protected static string $view = 'filament.app.resources.photo-resource.pages.list-photos';
 
-    public int $perPage = self::PAGE_SIZE;
+    public array $photos = [];
+
+    public bool $hasMore = false;
 
     public function mount(): void
     {
         $this->registerSEO();
+        $this->loadBatch();
     }
 
     public function getBreadcrumbs(): array
@@ -31,21 +34,44 @@ class ListPhotos extends Page
 
     public function loadMore(): void
     {
-        $this->perPage += self::PAGE_SIZE;
+        $this->loadBatch();
     }
 
-    protected function getViewData(): array
+    protected function loadBatch(): void
     {
-        $photos = static::getResource()::getEloquentQuery()
-            ->select(['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height'])
-            ->take($this->perPage + 1)
-            ->get();
+        $query = static::getResource()::getEloquentQuery()
+            ->select(['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height', 'created_at'])
+            ->orderBy('id', 'desc');
 
-        $hasMore = $photos->count() > $this->perPage;
+        if (!empty($this->photos)) {
+            $last = end($this->photos);
+            $query->where(function ($q) use ($last) {
+                $q->where('created_at', '<', $last['created_at'])
+                  ->orWhere(function ($q2) use ($last) {
+                      $q2->where('created_at', '=', $last['created_at'])
+                         ->where('id', '<', $last['id']);
+                  });
+            });
+        }
 
-        return [
-            'photos' => $hasMore ? $photos->slice(0, $this->perPage) : $photos,
-            'hasMore' => $hasMore,
-        ];
+        $batch = $query->take(self::PAGE_SIZE + 1)->get();
+
+        $this->hasMore = $batch->count() > self::PAGE_SIZE;
+        if ($this->hasMore) {
+            $batch->pop();
+        }
+
+        foreach ($batch as $photo) {
+            $this->photos[] = [
+                'id' => $photo->id,
+                'name' => $photo->name,
+                'author_name' => $photo->author_name,
+                'flickr_link' => $photo->flickr_link,
+                'thumbnail_url' => $photo->thumbnail_url,
+                'thumbnail_width' => $photo->thumbnail_width,
+                'thumbnail_height' => $photo->thumbnail_height,
+                'created_at' => $photo->created_at->toDateTimeString(),
+            ];
+        }
     }
 }

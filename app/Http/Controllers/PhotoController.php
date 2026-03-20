@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Photo;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,16 +15,12 @@ class PhotoController extends Controller
             return $this->validationErrorResponse($validator);
         }
 
-        $photo = $this->createPhoto($request);
-
-        try {
-            $photo->save();
-        } catch (QueryException $e) {
-            if ($e->getCode() === '23000') {
-                return $this->errorResponse('Photo with this Flickr link already exists');
-            }
-            throw $e;
+        if (Photo::where('flickr_link', $request->get('flickr_link'))->exists()) {
+            return $this->errorResponse('Photo with this Flickr link already exists');
         }
+
+        $photo = $this->createPhoto($request);
+        $photo->save();
 
         $this->syncTags($request, $photo);
 
@@ -51,13 +46,10 @@ class PhotoController extends Controller
 
     protected function createPhoto(Request $request)
     {
-        $photo = new Photo();
-        $photo->name = $request->get('name');
-        $photo->author_name = $request->get('author_name');
-        $photo->flickr_link = $request->get('flickr_link');
-        $photo->thumbnail_url = $request->get('thumbnail_url');
-        $photo->thumbnail_width = $request->get('thumbnail_width');
-        $photo->thumbnail_height = $request->get('thumbnail_height');
+        $photo = new Photo($request->only([
+            'name', 'author_name', 'flickr_link',
+            'thumbnail_url', 'thumbnail_width', 'thumbnail_height',
+        ]));
         $photo->is_published = true;
 
         return $photo;

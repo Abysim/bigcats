@@ -50,13 +50,11 @@ class PhotoResource extends Resource
                         TextInput::make('flickr_link')
                             ->required()
                             ->url()
-                            ->rules(['regex:/^https?:\/\//i'])
                             ->maxLength(1024)
                             ->columnSpanFull(),
                         TextInput::make('thumbnail_url')
                             ->required()
                             ->url()
-                            ->rules(['regex:/^https?:\/\//i'])
                             ->maxLength(1024)
                             ->columnSpanFull(),
                         TextInput::make('thumbnail_width')
