@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Photo;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PhotoController extends Controller
@@ -15,19 +17,23 @@ class PhotoController extends Controller
             return $this->validationErrorResponse($validator);
         }
 
-        if (Photo::where('flickr_link', $request->get('flickr_link'))->exists()) {
-            return $this->errorResponse('Photo with this Flickr link already exists');
+        try {
+            return DB::transaction(function () use ($request) {
+                $photo = $this->makePhoto($request);
+                $photo->save();
+                $this->syncTags($request->get('tags'), $photo);
+
+                return response()->json([
+                    'status' => 'success',
+                    'flickr_link' => $photo->flickr_link,
+                ]);
+            });
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] === 1062) {
+                return $this->errorResponse('Photo with this Flickr link already exists');
+            }
+            throw $e;
         }
-
-        $photo = $this->createPhoto($request);
-        $photo->save();
-
-        $this->syncTags($request, $photo);
-
-        return response()->json([
-            'status' => 'success',
-            'flickr_link' => $photo->flickr_link,
-        ]);
     }
 
     protected function validateRequest(Request $request)
@@ -44,7 +50,7 @@ class PhotoController extends Controller
         ]);
     }
 
-    protected function createPhoto(Request $request)
+    protected function makePhoto(Request $request): Photo
     {
         $photo = new Photo($request->only([
             'name', 'author_name', 'flickr_link',

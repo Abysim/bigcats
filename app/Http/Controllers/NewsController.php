@@ -30,7 +30,7 @@ class NewsController extends Controller
 
         $news->save();
         $news->refresh();
-        $this->syncTags($request, $news);
+        $this->syncTags($request->get('tags'), $news);
 
         return $this->successResponse($news);
     }

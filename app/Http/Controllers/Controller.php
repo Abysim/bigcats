@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
 
 abstract class Controller
@@ -23,8 +22,8 @@ abstract class Controller
         ], $status);
     }
 
-    protected function syncTags(Request $request, Model $model): void
+    protected function syncTags(array $tagShortNames, Model $model): void
     {
-        $model->tags()->sync(Tag::whereIn('short_name', $request->get('tags'))->pluck('id'));
+        $model->tags()->sync(Tag::whereIn('short_name', $tagShortNames)->pluck('id'));
     }
 }

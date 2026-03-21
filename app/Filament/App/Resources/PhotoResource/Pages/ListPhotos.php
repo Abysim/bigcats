@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\PhotoResource\Pages;
 
 use App\Traits\HasCustomSEO;
 use Filament\Resources\Pages\Page;
+use Livewire\Attributes\Computed;
 
 class ListPhotos extends Page
 {
@@ -11,20 +12,23 @@ class ListPhotos extends Page
 
     protected const PAGE_SIZE = 48;
 
+    private const GALLERY_FIELDS = ['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height', 'created_at'];
+
     protected static ?string $title = 'Фотогалерея';
 
     protected static string $resource = \App\Filament\App\Resources\PhotoResource::class;
 
     protected static string $view = 'filament.app.resources.photo-resource.pages.list-photos';
 
-    public array $photos = [];
+    public ?string $cursorCreatedAt = null;
+
+    public ?int $cursorId = null;
 
     public bool $hasMore = false;
 
     public function mount(): void
     {
         $this->registerSEO();
-        $this->loadBatch();
     }
 
     public function getBreadcrumbs(): array
@@ -34,18 +38,27 @@ class ListPhotos extends Page
 
     public function loadMore(): void
     {
-        $this->loadBatch();
+        $this->dispatch('photos-loaded', photos: $this->fetchBatch());
     }
 
-    protected function loadBatch(): void
+    #[Computed]
+    public function initialPhotos(): array
+    {
+        if ($this->cursorCreatedAt !== null) {
+            return [];
+        }
+
+        return $this->fetchBatch();
+    }
+
+    protected function fetchBatch(): array
     {
         $query = static::getResource()::getEloquentQuery()
-            ->select(['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height', 'created_at'])
+            ->select(self::GALLERY_FIELDS)
             ->reorder()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
-        if (!empty($this->photos)) {
-            $last = end($this->photos);
-            $query->whereRaw('(created_at, id) < (?, ?)', [$last['created_at'], $last['id']]);
+        if ($this->cursorCreatedAt !== null) {
+            $query->whereRaw('(created_at, id) < (?, ?)', [$this->cursorCreatedAt, $this->cursorId]);
         }
 
         $batch = $query->take(self::PAGE_SIZE + 1)->get();
@@ -55,17 +68,20 @@ class ListPhotos extends Page
             $batch->pop();
         }
 
-        foreach ($batch as $photo) {
-            $this->photos[] = [
-                'id' => $photo->id,
-                'name' => $photo->name,
-                'author_name' => $photo->author_name,
-                'flickr_link' => $photo->flickr_link,
-                'thumbnail_url' => $photo->thumbnail_url,
-                'thumbnail_width' => $photo->thumbnail_width,
-                'thumbnail_height' => $photo->thumbnail_height,
-                'created_at' => $photo->created_at->toDateTimeString(),
-            ];
+        if ($batch->isNotEmpty()) {
+            $last = $batch->last();
+            $this->cursorCreatedAt = $last->created_at->toDateTimeString();
+            $this->cursorId = $last->id;
         }
+
+        return $batch->map(fn ($photo) => [
+            'id' => $photo->id,
+            'name' => $photo->name,
+            'author_name' => $photo->author_name,
+            'flickr_link' => $photo->flickr_link,
+            'thumbnail_url' => $photo->thumbnail_url,
+            'thumbnail_width' => (int) $photo->thumbnail_width,
+            'thumbnail_height' => (int) $photo->thumbnail_height,
+        ])->all();
     }
 }
