@@ -108,7 +108,7 @@ class PhotoResource extends Resource
                 TextColumn::make('tags')
                     ->wrap()
                     ->formatStateUsing(fn (Photo $record): string => $record->tags->pluck('name')->join(', '))
-                    ->searchable(query: fn ($query, string $search): mixed => $query->whereHas('tags', fn ($q) => $q->where('name', 'like', "%{$search}%"))),
+                    ->searchable(query: fn ($query, string $search): mixed => $query->whereHas('tags', fn ($q) => $q->where('name', 'like', '%' . str_replace(['%', '_'], ['\\%', '\\_'], $search) . '%'))),
                 ToggleColumn::make('is_published'),
                 TextColumn::make('created_at')
                     ->dateTime()
