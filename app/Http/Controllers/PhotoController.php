@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 
 class PhotoController extends Controller
 {
+    private const MYSQL_DUPLICATE_ENTRY = 1062;
+
     public function create(Request $request)
     {
         $validator = $this->validateRequest($request);
@@ -29,7 +31,7 @@ class PhotoController extends Controller
                 ]);
             });
         } catch (QueryException $e) {
-            if ($e->errorInfo[1] === 1062) {
+            if ($e->errorInfo[1] === self::MYSQL_DUPLICATE_ENTRY) {
                 return $this->errorResponse('Photo with this Flickr link already exists');
             }
             throw $e;

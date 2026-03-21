@@ -61,7 +61,7 @@ class ListPhotos extends Page
             $query->whereRaw('(created_at, id) < (?, ?)', [$this->cursorCreatedAt, $this->cursorId]);
         }
 
-        $batch = $query->take(self::PAGE_SIZE + 1)->get();
+        $batch = $query->take(self::PAGE_SIZE + 1)->toBase()->get();
 
         $this->hasMore = $batch->count() > self::PAGE_SIZE;
         if ($this->hasMore) {
@@ -70,7 +70,7 @@ class ListPhotos extends Page
 
         if ($batch->isNotEmpty()) {
             $last = $batch->last();
-            $this->cursorCreatedAt = $last->created_at->toDateTimeString();
+            $this->cursorCreatedAt = $last->created_at;
             $this->cursorId = $last->id;
         }
 
