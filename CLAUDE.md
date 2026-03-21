@@ -27,8 +27,9 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **This project** is the public frontend; the API project handles backend processing
 
 ## Running Commands on Production via SSH
-- **PHP**: `ssh bigcats "cd ~/bigcats && php artisan <command>"`
-- **Composer**: `ssh bigcats "cd ~/bigcats && php /opt/cpanel/ea-wappspector/composer.phar <command>"`
+- **PHP**: `ssh bigcats "php artisan <command>"`
+- **Composer**: `ssh bigcats "php /opt/cpanel/ea-wappspector/composer.phar <command>"`
+- **Server path**: `~` (home directory `/home/bigcatso/`) — do NOT use `~/bigcats`, it does not exist
 
 ## Testing
 - **Run tests locally**: `p vendor/bin/phpunit --no-coverage`
@@ -39,9 +40,10 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **`.env.example`** — template only
 
 ## Deployment
-- **Deployment is NOT automatic from Claude edits** — files created/modified by Claude do not auto-sync to production
-- **Always wait for user to approve and deploy** changes manually
-- **After `.env` or config changes on production**: `ssh bigcats "cd ~/bigcats && php artisan config:cache"`
+- **Deployment method**: IDE auto-syncs on file save (SFTP). Files created/modified by Claude do NOT auto-sync — manually `scp` them: `scp <file> bigcats:~/<relative-path>`
+- **BEFORE deploying via scp**: always verify the target path exists on the server first (`ssh bigcats "ls <path>"`). NEVER create directories or upload blindly
+- **After deploying new CSS/JS**: run `npm run build` locally first, then upload built assets from `public_html/build/`
+- **After `.env` or config changes on production**: `ssh bigcats "php artisan config:cache"`
 
 ## Database
 - **Production**: MariaDB 11, database `bigcatso_new`, user `bigcatso_user`
