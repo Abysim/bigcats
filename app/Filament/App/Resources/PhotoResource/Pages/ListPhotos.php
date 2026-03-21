@@ -12,7 +12,7 @@ class ListPhotos extends Page
 
     protected const PAGE_SIZE = 48;
 
-    private const GALLERY_FIELDS = ['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height', 'created_at'];
+    private const QUERY_FIELDS = ['id', 'name', 'author_name', 'flickr_link', 'thumbnail_url', 'thumbnail_width', 'thumbnail_height', 'created_at'];
 
     protected static ?string $title = 'Фотогалерея';
 
@@ -54,7 +54,7 @@ class ListPhotos extends Page
     protected function fetchBatch(): array
     {
         $query = static::getResource()::getEloquentQuery()
-            ->select(self::GALLERY_FIELDS)
+            ->select(self::QUERY_FIELDS)
             ->reorder()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
         if ($this->cursorCreatedAt !== null) {

@@ -81,40 +81,38 @@ class ImportPhotosFromApiCommand extends Command
 
         $stats = ['imported' => 0, 'skipped_duplicate' => 0];
 
-        DB::transaction(function () use ($query, $existingLinks, $tagMap, $bar, &$stats) {
-            foreach ($query->lazy() as $flickrPhoto) {
-                $bar->advance();
+        foreach ($query->lazy() as $flickrPhoto) {
+            $bar->advance();
 
-                if (isset($existingLinks[$flickrPhoto->url])) {
-                    $stats['skipped_duplicate']++;
-                    continue;
-                }
-
-                $photo = Photo::create([
-                    'name' => $flickrPhoto->publish_title ?? '',
-                    'author_name' => $flickrPhoto->owner_realname ?: $flickrPhoto->owner_username ?: 'Unknown',
-                    'flickr_link' => $flickrPhoto->url,
-                    'thumbnail_url' => $flickrPhoto->thumbnail_url,
-                    'thumbnail_width' => $flickrPhoto->thumbnail_width,
-                    'thumbnail_height' => $flickrPhoto->thumbnail_height,
-                    'is_published' => true,
-                ]);
-
-                if (!empty($flickrPhoto->publish_tags)) {
-                    $tagNames = array_filter(array_map(
-                        fn ($t) => preg_replace('/[^[:alnum:]]/u', '', $t),
-                        explode(' ', $flickrPhoto->publish_tags),
-                    ));
-                    $tagIds = $tagMap->only($tagNames)->values()->all();
-                    if (!empty($tagIds)) {
-                        $photo->tags()->sync($tagIds);
-                    }
-                }
-
-                $existingLinks[$flickrPhoto->url] = true;
-                $stats['imported']++;
+            if (isset($existingLinks[$flickrPhoto->url])) {
+                $stats['skipped_duplicate']++;
+                continue;
             }
-        });
+
+            $photo = Photo::create([
+                'name' => $flickrPhoto->publish_title ?? '',
+                'author_name' => $flickrPhoto->owner_realname ?: $flickrPhoto->owner_username ?: 'Unknown',
+                'flickr_link' => $flickrPhoto->url,
+                'thumbnail_url' => $flickrPhoto->thumbnail_url,
+                'thumbnail_width' => $flickrPhoto->thumbnail_width,
+                'thumbnail_height' => $flickrPhoto->thumbnail_height,
+                'is_published' => true,
+            ]);
+
+            if (!empty($flickrPhoto->publish_tags)) {
+                $tagNames = array_filter(array_map(
+                    fn ($t) => preg_replace('/[^[:alnum:]]/u', '', $t),
+                    explode(' ', $flickrPhoto->publish_tags),
+                ));
+                $tagIds = $tagMap->only($tagNames)->values()->all();
+                if (!empty($tagIds)) {
+                    $photo->tags()->sync($tagIds);
+                }
+            }
+
+            $existingLinks[$flickrPhoto->url] = true;
+            $stats['imported']++;
+        }
 
         $bar->finish();
         $this->newLine(2);
