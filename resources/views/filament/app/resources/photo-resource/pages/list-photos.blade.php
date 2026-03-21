@@ -33,7 +33,7 @@
             </template>
         </div>
 
-        @if($hasMore)
+        @if($this->hasMore)
             <div
                 wire:key="sentinel-{{ $cursorId }}"
                 x-intersect:enter="$wire.loadMore()"

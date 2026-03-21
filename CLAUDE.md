@@ -27,8 +27,8 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **This project** is the public frontend; the API project handles backend processing
 
 ## Running Commands on Production via SSH
-- **PHP**: `ssh bigcats "php artisan <command>"`
-- **Composer**: `ssh bigcats "php /opt/cpanel/ea-wappspector/composer.phar <command>"`
+- **PHP**: `ssh bigcats "/opt/cpanel/ea-php83/root/usr/bin/php artisan <command>"` — do NOT use default `php` (it's `/opt/alt/php83` which has a broken PDO driver that returns integers as binary strings)
+- **Composer**: `ssh bigcats "/opt/cpanel/ea-php83/root/usr/bin/php /opt/cpanel/ea-wappspector/composer.phar <command>"`
 - **Server path**: `~` (home directory `/home/bigcatso/`) — do NOT use `~/bigcats`, it does not exist
 
 ## Testing
@@ -43,7 +43,8 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **Deployment method**: IDE auto-syncs on file save (SFTP). Files created/modified by Claude do NOT auto-sync — manually `scp` them: `scp <file> bigcats:~/<relative-path>`
 - **BEFORE deploying via scp**: always verify the target path exists on the server first (`ssh bigcats "ls <path>"`). NEVER create directories or upload blindly
 - **After deploying new CSS/JS**: run `npm run build` locally first, then upload built assets from `public_html/build/`
-- **After `.env` or config changes on production**: `ssh bigcats "php artisan config:cache"`
+- **After `scp`, ALWAYS verify** files landed correctly: `ssh bigcats "ls <path>"` or compare with `diff`. Especially for `public_html/build/` assets — compare `manifest.json` between local and production
+- **After `.env` or config changes on production**: `ssh bigcats "/opt/cpanel/ea-php83/root/usr/bin/php artisan config:cache"`
 
 ## Database
 - **Production**: MariaDB 11, database `bigcatso_new`, user `bigcatso_user`
@@ -52,6 +53,7 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **Copy prod→local**: `p artisan migrate:fresh --force` then `ssh bigcats "mariadb-dump -u bigcatso_user -p'...' bigcatso_new --no-create-info --skip-triggers --skip-add-locks --ignore-table=bigcatso_new.migrations" | mysql bigcats`
 
 ## Gotchas
+- **No cross-database access** — `bigcatso_user` cannot query the API database and vice versa. Cross-DB imports require piping between separate `mysql` connections
 - **PHP + Node stack** — Node needed for Vite asset builds (`npm run build`)
 - **`.env` is for local dev only** — production uses `.env.production` deployed as `.env`
 - **Same MySQL server, separate databases** — but schema migrations still require caution on a live server
