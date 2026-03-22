@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Filament\App\Resources\NewsResource;
 use App\Models\News;
-use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -21,24 +20,24 @@ class NewsController extends Controller
         }
 
         if ($this->newsExists($request)) {
-            return $this->newsExistsErrorResponse();
+            return $this->errorResponse('News with this title and date already exists');
         }
 
         $news = $this->createNews($request);
         if (!$this->saveImage($request, $news)) {
-            return $this->imageSaveErrorResponse();
+            return $this->errorResponse('Failed to save image', 500);
         }
 
         $news->save();
         $news->refresh();
-        $this->syncTags($request, $news);
+        $this->syncTags($request->get('tags'), $news);
 
         return $this->successResponse($news);
     }
 
     protected function validateRequest(Request $request)
     {
-        $rules = [
+        return Validator::make($request->all(), [
             'title' => 'required|string',
             'content' => 'required|string',
             'date' => 'required|date',
@@ -49,20 +48,7 @@ class NewsController extends Controller
             'source_name' => 'string',
             'author' => 'string',
             'tags' => 'required|array',
-        ];
-
-        return Validator::make($request->all(), $rules);
-    }
-
-    protected function validationErrorResponse($validator)
-    {
-        $messages = $validator->messages();
-        $errors = $messages->all();
-
-        return response()->json([
-            'status' => 'error',
-            'errors' => $errors,
-        ], 400);
+        ]);
     }
 
     protected function newsExists(Request $request)
@@ -71,14 +57,6 @@ class NewsController extends Controller
             ->where('title', $request->title)
             ->where('date', $request->date)
             ->exists();
-    }
-
-    protected function newsExistsErrorResponse()
-    {
-        return response()->json([
-            'status' => 'error',
-            'errors' => ['News with this title and date already exists'],
-        ], 400);
     }
 
     protected function createNews(Request $request)
@@ -108,19 +86,6 @@ class NewsController extends Controller
         }
 
         return false;
-    }
-
-    protected function imageSaveErrorResponse()
-    {
-        return response()->json([
-            'status' => 'error',
-            'errors' => ['Failed to save image'],
-        ], 500);
-    }
-
-    protected function syncTags(Request $request, News $news)
-    {
-        $news->tags()->sync(Tag::whereIn('short_name', $request->get('tags'))->pluck('id'));
     }
 
     protected function successResponse(News $news)

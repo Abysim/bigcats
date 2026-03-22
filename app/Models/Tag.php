@@ -67,6 +67,11 @@ class Tag extends Model implements Sitemapable
         return $this->belongsToMany(Article::class);
     }
 
+    public function photos(): BelongsToMany
+    {
+        return $this->belongsToMany(Photo::class);
+    }
+
     public function toSitemapTag(): Url | string | array
     {
         $lastNewsDate = $this->news()->where(['is_published' => true])->latest('created_at')->first()?->created_at ?? now();

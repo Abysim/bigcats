@@ -31,6 +31,6 @@ class TagType extends Model
 
     public function tags(): HasMany
     {
-        return $this->hasMany(Tag::class);
+        return $this->hasMany(Tag::class, 'type_id');
     }
 }
