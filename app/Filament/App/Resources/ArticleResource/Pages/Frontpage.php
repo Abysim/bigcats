@@ -3,24 +3,39 @@
 namespace App\Filament\App\Resources\ArticleResource\Pages;
 
 use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
-use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use App\Filament\App\Resources\XArticleResource;
-use App\Traits\HasCustomSEO;
+use App\Models\Article;
 use Filament\Resources\Pages\Page;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 
 class Frontpage extends Page
 {
-    use HasCustomSEO;
-
-    protected static ?string $title = 'Останні новини';
-
     protected static string $resource = XArticleResource::class;
 
     protected static string $view = 'filament.app.resources.article-resource.pages.frontpage';
 
+    public ?Article $article = null;
+
     public function mount(): void
     {
-        $this->registerSEO();
+        $this->article = Article::whereNull('parent_id')
+            ->with('featuredChildren')
+            ->first();
+
+        if ($this->article) {
+            FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->article));
+        }
+    }
+
+    public function getTitle(): string
+    {
+        return $this->article?->title ?? '';
+    }
+
+    public function getHeading(): string
+    {
+        return '';
     }
 
     public function getBreadcrumbs(): array
@@ -28,38 +43,21 @@ class Frontpage extends Page
         return [];
     }
 
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            LatestNews::make([
-                'header' => '',
-                'count' => 12,
-                'grid' => [
-                    'default' => 2,
-                    'md' => 3,
-                    'xl' => 4,
-                ]
-            ]),
-        ];
-    }
-
-    public function getHeaderWidgetsColumns(): int | array
-    {
-        return 1;
-    }
-
     protected function getFooterWidgets(): array
     {
         return [
-            TagCloud::make([
-                'relation' => 'news',
+            LatestNews::make([
+                'count' => 6,
             ]),
         ];
-
     }
 
-    public function getFooterWidgetsColumns(): int | array
+    public function getFooterWidgetsColumns(): int|array
     {
-        return 1;
+        return [
+            'sm' => 1,
+            'md' => 2,
+            'lg' => 1,
+        ];
     }
 }

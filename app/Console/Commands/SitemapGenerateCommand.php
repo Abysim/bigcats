@@ -5,6 +5,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Article;
 use App\Models\News;
 use App\Models\Tag;
 use Carbon\Carbon;
@@ -25,10 +26,20 @@ class SitemapGenerateCommand extends Command
             ? Carbon::createFromTimestamp($this->argument('timestamp'))
             : (News::latest('created_at')->first()?->created_at ?? now());
 
+        // Pre-load all articles and set parent relations in memory to avoid N+1 in getUrl()
+        $allArticles = Article::where('is_published', true)->get()->keyBy('id');
+        $allArticles->each(function ($article) use ($allArticles) {
+            if ($article->parent_id) {
+                $article->setRelation('parent', $allArticles->get($article->parent_id));
+            }
+        });
+        $publishedArticles = $allArticles->filter(fn ($a) => $a->parent_id !== null);
+
         Sitemap::create()
             ->add(Url::create('/')->setLastModificationDate($lastUpdateDate))
             ->add(Url::create('/news')->setLastModificationDate($lastUpdateDate))
             ->add(News::where(['is_published' => true, 'is_original' => true])->orderBy('date', 'desc')->get())
+            ->add($publishedArticles->values()->all())
             ->add(Tag::whereHas('news', function ($query) {
                 $query->where(['is_published' => true]);
             })->withCount('news')->having('news_count', '>', 4)->orderByDesc('news_count')->get())

@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Article;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         URL::forceHttps($this->app->isProduction());
+
+        // Clear navigation cache when articles change
+        Article::saved(fn() => Cache::forget(Article::NAV_CACHE_KEY));
+        Article::deleted(fn() => Cache::forget(Article::NAV_CACHE_KEY));
 
         FilamentColor::register([
             'danger' => Color::Red,

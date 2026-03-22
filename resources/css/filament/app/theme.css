@@ -26,6 +26,20 @@ section > div > div.grid > div.grid div.grid > div {
     }
 }
 
+/* Topbar hover dropdown */
+.fi-topbar-dropdown:hover .fi-topbar-dropdown-panel {
+    display: block !important;
+}
+
+.fi-topbar-dropdown-panel {
+    transition: opacity 0.1s ease;
+}
+
+.dark .fi-topbar-dropdown-panel {
+    background: rgb(17 24 39) !important;
+    border-color: rgb(255 255 255 / 0.1) !important;
+}
+
 /* Photo Gallery - Full width (no sidebar) */
 @media (min-width: 64rem) {
     section > div > div.grid:has(.photo-gallery) {
