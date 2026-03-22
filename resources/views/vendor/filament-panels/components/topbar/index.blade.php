@@ -1,3 +1,4 @@
+{{-- Forked from filament/filament v3.3.49 — adds CSS-hover dropdown for labeled nav groups --}}
 @props([
     'navigation',
 ])

@@ -25,10 +25,7 @@ class Frontpage extends Page
             ->with('featuredChildren')
             ->first();
 
-        // Wire parent relation to avoid N+1 when featuredChildren call getUrl()
-        $this->article?->featuredChildren->each(
-            fn($c) => $c->setRelation('parent', $this->article)
-        );
+        $this->article?->wireChildrenParent('featuredChildren');
 
         if ($this->article) {
             FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->article));

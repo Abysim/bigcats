@@ -40,6 +40,7 @@ class Article extends Model implements Sitemapable
     use HasFactory, HasBuilder, HasChildren, HasSEO;
 
     public const NAV_CACHE_KEY = 'nav_articles';
+    public const MAX_DEPTH = 6;
 
     protected $fillable = [
         'parent_id',
@@ -107,15 +108,24 @@ class Article extends Model implements Sitemapable
         return $this->parent_id === null;
     }
 
+    /**
+     * Set the parent relation on all loaded children in the given relation,
+     * preventing N+1 when children call getUrl()/getAncestors().
+     */
+    public function wireChildrenParent(string $relation = 'children'): void
+    {
+        if ($this->relationLoaded($relation)) {
+            $this->{$relation}->each(fn($child) => $child->setRelation('parent', $this));
+        }
+    }
+
     public function getUrl(): string
     {
-        $slugs = collect();
-        $article = $this;
-        while ($article && $article->parent_id !== null) {
-            $slugs->prepend($article->slug);
-            $article = $article->parent;
-        }
-        return '/' . $slugs->implode('/');
+        return '/' . $this->getAncestors()
+            ->push($this)
+            ->reject(fn($a) => $a->isFrontpage())
+            ->pluck('slug')
+            ->implode('/');
     }
 
     public function getAncestors(): \Illuminate\Support\Collection

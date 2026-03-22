@@ -82,46 +82,29 @@ class AppPanelProvider extends PanelProvider
     private function buildArticleNavItems(): array
     {
         try {
-            $frontpage = Cache::remember(Article::NAV_CACHE_KEY, 300, function () {
+            $navData = Cache::remember(Article::NAV_CACHE_KEY, now()->addMinutes(5), function () {
                 $frontpage = Article::frontpage()
-                    ->with('featuredChildren.featuredChildren')
+                    ->with('featuredChildren')
                     ->first();
 
                 if (!$frontpage) {
-                    return null;
+                    return [];
                 }
 
-                // Wire parent relations to avoid N+1 when getUrl() walks the parent chain
-                $frontpage->featuredChildren->each(function ($child) use ($frontpage) {
-                    $child->setRelation('parent', $frontpage);
-                    $child->featuredChildren->each(fn($gc) => $gc->setRelation('parent', $child));
-                });
+                $frontpage->wireChildrenParent('featuredChildren');
 
-                return $frontpage;
+                return $frontpage->featuredChildren->map(fn($child) => [
+                    'title' => $child->title,
+                    'url' => $child->getUrl(),
+                    'priority' => $child->priority,
+                ])->all();
             });
         } catch (\Exception) {
             return [];
         }
 
-        $navItems = [];
-        if ($frontpage) {
-            foreach ($frontpage->featuredChildren as $child) {
-                $item = NavigationItem::make($child->title)
-                    ->url($child->getUrl())
-                    ->sort($child->priority);
-
-                if ($child->featuredChildren->isNotEmpty()) {
-                    $item->childItems(
-                        $child->featuredChildren->map(fn($gc) =>
-                            NavigationItem::make($gc->title)
-                                ->url($gc->getUrl())
-                        )->all()
-                    );
-                }
-                $navItems[] = $item;
-            }
-        }
-
-        return $navItems;
+        return array_map(fn($item) => NavigationItem::make($item['title'])
+            ->url($item['url'])
+            ->sort($item['priority']), $navData);
     }
 }

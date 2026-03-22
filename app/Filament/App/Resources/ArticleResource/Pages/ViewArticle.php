@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\ArticleResource\Pages;
 
 use App\Filament\App\Resources\XArticleResource;
+use App\Models\Article;
 use App\Traits\HasLatestNewsFooter;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Facades\FilamentView;
@@ -33,15 +34,15 @@ class ViewArticle extends ViewRecord
 
     protected function resolveRecord(int|string|null $key = null): Model
     {
-        $parentId = static::getModel()::query()->frontpage()->value('id');
+        $frontpage = static::getModel()::query()->frontpage()->first();
 
-        if (!$parentId) {
+        if (!$frontpage) {
             throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
         }
 
-        // Collect the chain so we can wire parent relations (avoids N+1 in breadcrumbs/getUrl)
         $chain = [];
-        for ($i = 1; $i <= 6; $i++) {
+        $parentId = $frontpage->id;
+        for ($i = 1; $i <= Article::MAX_DEPTH; $i++) {
             $slug = request('slug' . $i, '');
             if (empty($slug)) {
                 break;
@@ -65,7 +66,7 @@ class ViewArticle extends ViewRecord
             throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
         }
 
-        // Wire parent relations in memory to avoid lazy-loading in getAncestors()/getUrl()
+        $chain[0]->setRelation('parent', $frontpage);
         for ($i = 1; $i < count($chain); $i++) {
             $chain[$i]->setRelation('parent', $chain[$i - 1]);
         }

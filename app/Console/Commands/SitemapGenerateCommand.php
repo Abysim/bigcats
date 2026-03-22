@@ -26,7 +26,10 @@ class SitemapGenerateCommand extends Command
             ? Carbon::createFromTimestamp($this->argument('timestamp'))
             : (News::latest('created_at')->first()?->created_at ?? now());
 
-        $allArticles = Article::published()->get()->keyBy('id');
+        $allArticles = Article::published()
+            ->select(['id', 'parent_id', 'slug', 'updated_at'])
+            ->get()
+            ->keyBy('id');
         $allArticles->each(function ($article) use ($allArticles) {
             if ($article->parent_id) {
                 $article->setRelation('parent', $allArticles->get($article->parent_id));
