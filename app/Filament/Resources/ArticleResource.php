@@ -95,7 +95,7 @@ class ArticleResource extends Resource
                             )
                             ->rules([
                                 fn (Get $get, ?Article $record) => function ($attribute, $value, $fail) use ($record) {
-                                    if ($value === null && Article::whereNull('parent_id')->where('id', '!=', $record?->id ?? 0)->exists()) {
+                                    if ($value === null && Article::frontpage()->where('id', '!=', $record?->id ?? 0)->exists()) {
                                         $fail('A frontpage article already exists. Only one root article is allowed.');
                                     }
                                 },

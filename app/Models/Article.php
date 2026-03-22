@@ -97,6 +97,11 @@ class Article extends Model implements Sitemapable
         return $query->where('is_published', true);
     }
 
+    public function scopeFrontpage($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
     public function isFrontpage(): bool
     {
         return $this->parent_id === null;

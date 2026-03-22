@@ -82,11 +82,23 @@ class AppPanelProvider extends PanelProvider
     private function buildArticleNavItems(): array
     {
         try {
-            $frontpage = Cache::remember(Article::NAV_CACHE_KEY, 300, fn() =>
-                Article::whereNull('parent_id')
+            $frontpage = Cache::remember(Article::NAV_CACHE_KEY, 300, function () {
+                $frontpage = Article::frontpage()
                     ->with('featuredChildren.featuredChildren')
-                    ->first()
-            );
+                    ->first();
+
+                if (!$frontpage) {
+                    return null;
+                }
+
+                // Wire parent relations to avoid N+1 when getUrl() walks the parent chain
+                $frontpage->featuredChildren->each(function ($child) use ($frontpage) {
+                    $child->setRelation('parent', $frontpage);
+                    $child->featuredChildren->each(fn($gc) => $gc->setRelation('parent', $child));
+                });
+
+                return $frontpage;
+            });
         } catch (\Exception) {
             return [];
         }

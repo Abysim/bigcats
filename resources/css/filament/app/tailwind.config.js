@@ -5,6 +5,8 @@ export default {
     content: [
         './app/Filament/App/**/*.php',
         './resources/views/filament/app/**/*.blade.php',
+        './resources/views/vendor/**/*.blade.php',
+        './resources/views/components/**/*.blade.php',
         './vendor/filament/**/*.blade.php',
         './vendor/awcodes/filament-tiptap-editor/resources/**/*.blade.php',
         './vendor/cmsmaxinc/filament-error-pages/resources/views/*.blade.php',

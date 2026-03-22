@@ -65,22 +65,20 @@
                 <ul class="me-4 hidden items-center gap-x-4 lg:flex">
                     @foreach ($navigation as $group)
                         @if ($groupLabel = $group->getLabel())
-                            {{-- Hover dropdown with parent as link (CSS-only hover) --}}
-                            <li class="fi-topbar-dropdown" style="position: relative;">
-                                <a href="{{ url('/') }}"
+                            <li class="fi-topbar-dropdown relative">
+                                <a href="{{ filament()->getHomeUrl() ?? url('/') }}"
                                    @class([
                                        'fi-topbar-item flex items-center gap-x-2 rounded-lg px-3 py-2 text-sm font-medium transition',
                                        'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-950' => $group->isActive(),
                                        'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800' => ! $group->isActive(),
                                    ])>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                                    @svg('heroicon-o-home', 'h-5 w-5')
                                     {{ $groupLabel }}
-                                    <svg class="h-4 w-4 opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                    @svg('heroicon-m-chevron-down', 'h-4 w-4 opacity-50')
                                 </a>
 
-                                <div class="fi-topbar-dropdown-panel"
-                                     style="display: none; position: absolute; left: 0; top: 100%; z-index: 30; margin-top: 0.25rem; min-width: 28rem; border-radius: 0.75rem; background: white; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); border: 1px solid rgb(0 0 0 / 0.05);">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; padding: 0.5rem;">
+                                <div class="fi-topbar-dropdown-panel hidden absolute left-0 top-full z-30 mt-1 min-w-[28rem] rounded-xl bg-white shadow-lg border border-gray-950/5 dark:bg-gray-900 dark:border-white/10">
+                                    <div class="grid grid-cols-2 gap-1 p-2">
                                         @foreach ($group->getItems() as $item)
                                             @php
                                                 $itemIsActive = $item->isActive();

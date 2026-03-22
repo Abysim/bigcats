@@ -27,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         URL::forceHttps($this->app->isProduction());
 
-        // Clear navigation cache when articles change
         Article::saved(fn() => Cache::forget(Article::NAV_CACHE_KEY));
         Article::deleted(fn() => Cache::forget(Article::NAV_CACHE_KEY));
 

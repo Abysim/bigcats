@@ -2,8 +2,8 @@
 
 namespace App\Filament\App\Resources\ArticleResource\Pages;
 
-use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
 use App\Filament\App\Resources\XArticleResource;
+use App\Traits\HasLatestNewsFooter;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ViewArticle extends ViewRecord
 {
+    use HasLatestNewsFooter;
+
     protected static string $resource = XArticleResource::class;
 
     protected static string $view = 'filament.app.resources.article-resource.pages.view-article';
@@ -31,13 +33,14 @@ class ViewArticle extends ViewRecord
 
     protected function resolveRecord(int|string|null $key = null): Model
     {
-        $parentId = static::getModel()::query()->whereNull('parent_id')->value('id');
+        $parentId = static::getModel()::query()->frontpage()->value('id');
 
         if (!$parentId) {
             throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
         }
 
-        $record = null;
+        // Collect the chain so we can wire parent relations (avoids N+1 in breadcrumbs/getUrl)
+        $chain = [];
         for ($i = 1; $i <= 6; $i++) {
             $slug = request('slug' . $i, '');
             if (empty($slug)) {
@@ -46,7 +49,7 @@ class ViewArticle extends ViewRecord
 
             $model = static::getModel()::query()
                 ->where('parent_id', $parentId)
-                ->where('is_published', true)
+                ->published()
                 ->where('slug', $slug)
                 ->first();
 
@@ -54,15 +57,20 @@ class ViewArticle extends ViewRecord
                 throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
             }
 
-            $record = $model;
+            $chain[] = $model;
             $parentId = $model->id;
         }
 
-        if (!$record) {
+        if (empty($chain)) {
             throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
         }
 
-        return $record;
+        // Wire parent relations in memory to avoid lazy-loading in getAncestors()/getUrl()
+        for ($i = 1; $i < count($chain); $i++) {
+            $chain[$i]->setRelation('parent', $chain[$i - 1]);
+        }
+
+        return end($chain);
     }
 
     public function getHeading(): string
@@ -84,21 +92,4 @@ class ViewArticle extends ViewRecord
         return $breadcrumbs;
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [
-            LatestNews::make([
-                'count' => 6,
-            ]),
-        ];
-    }
-
-    public function getFooterWidgetsColumns(): int|array
-    {
-        return [
-            'sm' => 1,
-            'md' => 2,
-            'lg' => 1,
-        ];
-    }
 }
