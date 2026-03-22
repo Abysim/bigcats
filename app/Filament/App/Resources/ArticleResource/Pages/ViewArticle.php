@@ -51,7 +51,7 @@ class ViewArticle extends ViewRecord
                 ->first();
 
             if (!$model) {
-                break;
+                throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
             }
 
             $record = $model;
@@ -60,13 +60,6 @@ class ViewArticle extends ViewRecord
 
         if (!$record) {
             throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
-        }
-
-        // Verify all slug segments were consumed — /lion/nonexistent must 404
-        for ($j = $i; $j <= 6; $j++) {
-            if (!empty(request('slug' . $j))) {
-                throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
-            }
         }
 
         return $record;

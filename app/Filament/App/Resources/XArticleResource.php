@@ -4,10 +4,7 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\ArticleResource\Pages;
 use App\Models\Article;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 
 class XArticleResource extends Resource
 {
@@ -21,41 +18,6 @@ class XArticleResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return false; // Navigation handled by AppPanelProvider
-    }
-
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                //
-            ]);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                //
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
