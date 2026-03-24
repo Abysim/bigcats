@@ -27,6 +27,8 @@ use Spatie\Sitemap\Tags\Url;
  * @property string $content
  * @property string|null $image
  * @property string|null $image_caption
+ * @property string|null $source_name
+ * @property string|null $source_url
  * @property bool $is_published
  * @property bool $is_featured
  * @property Carbon $created_at
@@ -51,6 +53,8 @@ class Article extends Model implements Sitemapable
         'content',
         'image',
         'image_caption',
+        'source_name',
+        'source_url',
         'is_published',
         'is_featured',
     ];

@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PhotoController extends Controller
 {
-    private const MYSQL_DUPLICATE_ENTRY = 1062;
-
     public function create(Request $request)
     {
         $validator = $this->validateRequest($request);

@@ -28,6 +28,7 @@ class ViewArticle extends ViewRecord
     {
         $this->record = $this->resolveRecord($record);
         $this->record->load('publishedChildren');
+        $this->record->wireChildrenParent('publishedChildren');
 
         FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->record));
     }
