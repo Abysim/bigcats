@@ -9,6 +9,7 @@
                     <div class="overflow-hidden">
                         <img src="{{ Storage::url($child->image) }}"
                              alt="{{ $child->title }}"
+                             @if($child->image_caption) title="{{ $child->image_caption }}" @endif
                              loading="lazy"
                              class="w-full aspect-[4/3] object-cover transition-transform duration-300 group-hover:scale-105">
                     </div>
