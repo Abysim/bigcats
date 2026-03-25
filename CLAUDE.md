@@ -33,6 +33,7 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 
 ## Testing
 - **Run tests locally**: `p vendor/bin/phpunit --no-coverage`
+- **MariaDB must be running** — `bigcats start` before running tests (MariaDB is disabled on boot)
 
 ## Environment Files
 - **`.env`** — local development config (XAMPP). **NEVER deploy this to production.**
@@ -52,6 +53,14 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **Generated columns**: `news.year/month/day` (storedAs SUBSTR of date), `tags.short_name` (storedAs REGEXP_REPLACE of name)
 - **Copy prod→local**: `p artisan migrate:fresh --force` then `ssh bigcats "mariadb-dump -u bigcatso_user -p'...' bigcatso_new --no-create-info --skip-triggers --skip-add-locks --ignore-table=bigcatso_new.migrations" | mysql bigcats`
 
+## Architecture
+- **Public pages use Filament Panels** (`app/Filament/App/`) — not traditional Laravel controllers/Blade for articles and news
+- **ALWAYS use Filament components** — the entire site must have a consistent Filament look and feel. NEVER create custom Blade templates or hand-rolled HTML for content display. Use Filament Infolist, Section, Split, TextEntry, ImageEntry, ViewEntry etc. Custom elements waste iterations trying to match Filament's styling and never look right. Use Filament components from the start.
+- **Content display uses Filament Infolist** — articles and news both use `infolist()` on their resource classes. Follow the existing `NewsResource::infolist()` pattern for any new content types.
+- **Articles are hierarchical** — self-referential `parent_id`, max depth 6, frontpage is the root (parent_id=null). `XArticleResource` handles public routing with slug chains
+- **ViewEntry** for embedding Blade components in Infolist — use `->view()` (mandatory, omitting it throws Exception) and access record via `$getRecord()` in the partial
+- **Navigation** is manually built in `AppPanelProvider` from featured article children, not auto-generated from resources
+
 ## Gotchas
 - **Production PHP uses alt-php84 with nd_pdo_mysql/nd_mysqli** (mysqlnd variants) — the non-nd variants (libmysqlclient) and ea-php84 have a broken PDO driver that returns binary garbage. Do not switch MySQL driver extensions in cPanel's Select PHP Version
 - **No cross-database access** — `bigcatso_user` cannot query the API database and vice versa. Cross-DB imports require piping between separate `mysql` connections
@@ -62,3 +71,5 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **Document root**: `public_html/` (not Laravel default `public/`)
 - **`artisan serve` spawns a child PHP process** using `PhpExecutableFinder` which finds system `php` (7.2). The systemd service sets `Environment=PHP_BINARY=/usr/local/bin/p` to force 8.4
 - **Log timestamps are UTC**, server clock is CET (UTC+1)
+- **`filament()->getHomeUrl()`** resolves to the first navigation item's URL when `homeUrl` is not set on the panel — NOT `/`. The panel has `->homeUrl('/')` to fix this. Do not remove it.
+- **`addslashes()` is used for HTML `alt` attributes** across the codebase (7 sites) — technically wrong (`e()` is correct for HTML) but is the established pattern. If fixing, fix all 7 sites together.

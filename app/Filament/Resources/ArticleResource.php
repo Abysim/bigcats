@@ -61,7 +61,7 @@ class ArticleResource extends Resource
                     ])
                     ->columns(12)
                     ->columnSpanFull(),
-                Section::make('Image')
+                Section::make('Image & Source')
                     ->columns(4)
                     ->schema([
                         FileUpload::make('image')
@@ -71,6 +71,14 @@ class ArticleResource extends Resource
                             ->image(),
                         TextInput::make('image_caption')
                             ->maxLength(1024)
+                            ->columnSpan(3),
+                        TextInput::make('source_name')
+                            ->maxLength(255)
+                            ->default(null),
+                        TextInput::make('source_url')
+                            ->maxLength(1024)
+                            ->default(null)
+                            ->url()
                             ->columnSpan(3),
                     ])
                     ->collapsible(),

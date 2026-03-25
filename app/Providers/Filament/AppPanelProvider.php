@@ -76,7 +76,8 @@ class AppPanelProvider extends PanelProvider
                 FilamentErrorPagesPlugin::make(),
                 FilamentCookieConsent::make(),
             ])
-            ->topNavigation();
+            ->topNavigation()
+            ->homeUrl('/');
     }
 
     private function buildArticleNavItems(): array

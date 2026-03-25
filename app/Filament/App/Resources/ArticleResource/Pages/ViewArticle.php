@@ -17,8 +17,6 @@ class ViewArticle extends ViewRecord
 
     protected static string $resource = XArticleResource::class;
 
-    protected static string $view = 'filament.app.resources.article-resource.pages.view-article';
-
     protected function getHeaderActions(): array
     {
         return [];
