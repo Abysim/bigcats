@@ -27,7 +27,11 @@ class AppServiceProvider extends ServiceProvider
     {
         URL::forceHttps($this->app->isProduction());
 
-        Article::saved(fn() => Cache::forget(Article::NAV_CACHE_KEY));
+        Article::saved(function (Article $article) {
+            if ($article->wasChanged(['title', 'slug', 'is_published', 'is_featured', 'priority', 'parent_id'])) {
+                Cache::forget(Article::NAV_CACHE_KEY);
+            }
+        });
         Article::deleted(fn() => Cache::forget(Article::NAV_CACHE_KEY));
 
         FilamentColor::register([

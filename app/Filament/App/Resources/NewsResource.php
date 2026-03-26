@@ -98,8 +98,8 @@ class NewsResource extends Resource
                             Infolists\Components\TextEntry::make('source_name')
                                 ->formatStateUsing(fn (string $state, News $record): HtmlString => new HtmlString(
                                     $record->source_url
-                                        ? "<a rel=\"nofollow\" title=\"$record->source_url\" href=\"$record->source_url\" target=\"_blank\">$state</a>"
-                                        : $state
+                                        ? '<a rel="nofollow" title="' . e($record->source_url) . '" href="' . e($record->source_url) . '" target="_blank">' . e($state) . '</a>'
+                                        : e($state)
                                 ))
                                 ->grow(false)
                                 ->label('Джерело:')

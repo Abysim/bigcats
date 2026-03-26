@@ -95,6 +95,10 @@ class ArticleController extends Controller
         $counter = 2;
 
         while (Article::where('parent_id', $parentId)->where('slug', $slug)->exists()) {
+            if ($counter > 100) {
+                $slug = $baseSlug . '-' . Str::random(6);
+                break;
+            }
             $slug = $baseSlug . '-' . $counter;
             $counter++;
         }

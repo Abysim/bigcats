@@ -100,7 +100,8 @@ class AppPanelProvider extends PanelProvider
                     'priority' => $child->priority,
                 ])->all();
             });
-        } catch (\Exception) {
+        } catch (\Exception $e) {
+            report($e);
             return [];
         }
 
