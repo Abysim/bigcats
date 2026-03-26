@@ -72,4 +72,8 @@ Public-facing Laravel 11 website for big cats content. Hosted on the same server
 - **`artisan serve` spawns a child PHP process** using `PhpExecutableFinder` which finds system `php` (7.2). The systemd service sets `Environment=PHP_BINARY=/usr/local/bin/p` to force 8.4
 - **Log timestamps are UTC**, server clock is CET (UTC+1)
 - **`filament()->getHomeUrl()`** resolves to the first navigation item's URL when `homeUrl` is not set on the panel — NOT `/`. The panel has `->homeUrl('/')` to fix this. Do not remove it.
+- **`Storage::url()` vs `Storage::disk('public')->url()`** — Default disk (`local`) returns relative paths `/storage/...` that always work. Public disk returns absolute URLs using `APP_URL`. Filament's `ImageEntry`/`ImageColumn` uses `disk('public')` internally. If images break in Filament but work in Blade templates using `Storage::url()`, check `APP_URL` in `.env`
+- **`APP_URL` must be `http://127.0.0.1:8000`** for local dev — Filament components depend on it for storage URLs
+- **Dev server caches `.env` in memory** — after changing `.env`, restart with `systemctl --user restart bigcats`. `artisan tinker` reads fresh values but the running server does not
+- **Filament `<x-filament-panels::page>` grid layout** — uses `auto-cols-fr`, so slot content and footer widgets render side by side, not stacked
 - **`addslashes()` is used for HTML `alt` attributes** across the codebase (7 sites) — technically wrong (`e()` is correct for HTML) but is the established pattern. If fixing, fix all 7 sites together.
