@@ -9,6 +9,7 @@ use Illuminate\Validation\Validator;
 
 abstract class Controller
 {
+    protected const MYSQL_DUPLICATE_ENTRY = 1062;
     protected function validationErrorResponse(Validator $validator): JsonResponse
     {
         return $this->errorResponse($validator->messages()->all());

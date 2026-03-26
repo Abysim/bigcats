@@ -26,6 +26,11 @@ section > div > div.grid > div.grid div.grid > div {
     }
 }
 
+/* Topbar hover dropdown */
+.fi-topbar-dropdown:hover .fi-topbar-dropdown-panel {
+    display: block;
+}
+
 /* Photo Gallery - Full width (no sidebar) */
 @media (min-width: 64rem) {
     section > div > div.grid:has(.photo-gallery) {
