@@ -5,11 +5,12 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\ArticleResource\Pages;
 use App\Models\Article;
 use Filament\Infolists;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry\TextEntrySize;
-use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Illuminate\Support\HtmlString;
 
 class XArticleResource extends Resource
@@ -64,13 +65,41 @@ class XArticleResource extends Resource
                                 ->inlineLabel(),
                         ])
                             ->visible(fn (Article $record): bool => filled($record->source_name)),
-                        ViewEntry::make('children')
-                            ->view('filament.app.resources.article-resource.components.children-grid')
-                            ->hiddenLabel(),
+                        static::childrenSchema(),
                     ])
                     ->columns(1)
             ])
             ->columns(1);
+    }
+
+    public static function childrenSchema(): RepeatableEntry
+    {
+        return RepeatableEntry::make('featuredChildren')
+            ->schema([
+                Infolists\Components\ImageEntry::make('image')
+                    ->width('100%')
+                    ->height('auto')
+                    ->extraImgAttributes(fn (Article $record): array => [
+                        'alt' => $record->title,
+                        'title' => $record->image_caption ?? '',
+                        'class' => 'w-full aspect-[4/3] object-cover',
+                        'loading' => 'lazy',
+                    ])
+                    ->url(fn (Article $record): string => $record->getUrl())
+                    ->hiddenLabel(),
+                Infolists\Components\TextEntry::make('title')
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString(
+                        '<h3 class="text-base font-semibold leading-snug">' . e($state) . '</h3>'
+                    ))
+                    ->url(fn (Article $record): string => $record->getUrl())
+                    ->hiddenLabel(),
+                Infolists\Components\TextEntry::make('resume')
+                    ->size(TextEntrySize::Small)
+                    ->hiddenLabel(),
+            ])
+            ->grid(['sm' => 2])
+            ->extraAttributes(['class' => 'mt-6'])
+            ->hiddenLabel();
     }
 
     public static function getPages(): array

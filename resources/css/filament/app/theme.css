@@ -26,6 +26,11 @@ section > div > div.grid > div.grid div.grid > div {
     }
 }
 
+/* Article children grid — tighter spacing between image, title, resume */
+.fi-in-repeatable-item .fi-fo-component-ctn {
+    @apply !gap-2;
+}
+
 /* Topbar hover dropdown */
 .fi-topbar-dropdown:hover .fi-topbar-dropdown-panel {
     display: block;

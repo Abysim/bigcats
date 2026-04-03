@@ -25,8 +25,8 @@ class ViewArticle extends ViewRecord
     public function mount(int|string|null $record = null): void
     {
         $this->record = $this->resolveRecord($record);
-        $this->record->load('publishedChildren');
-        $this->record->wireChildrenParent('publishedChildren');
+        $this->record->load('featuredChildren');
+        $this->record->wireChildrenParent('featuredChildren');
 
         FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->record));
     }

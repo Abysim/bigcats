@@ -7,7 +7,7 @@
                 </div>
             @endif
 
-            <x-article-children-grid :children="$article->featuredChildren" />
+            {{ $this->childrenInfolist }}
         </x-filament::section>
     @endif
 </x-filament-panels::page>

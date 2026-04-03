@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\ArticleResource\Pages;
 use App\Filament\App\Resources\XArticleResource;
 use App\Models\Article;
 use App\Traits\HasLatestNewsFooter;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\Page;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
@@ -45,6 +46,19 @@ class Frontpage extends Page
     public function getBreadcrumbs(): array
     {
         return [];
+    }
+
+    public function childrenInfolist(Infolist $infolist): Infolist
+    {
+        if (! $this->article) {
+            return $infolist;
+        }
+
+        return $infolist
+            ->record($this->article)
+            ->schema([
+                XArticleResource::childrenSchema(),
+            ]);
     }
 
 }
