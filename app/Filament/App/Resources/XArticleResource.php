@@ -3,23 +3,18 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\ArticleResource\Pages;
+use App\Helpers\SourceLink;
 use App\Models\Article;
-use Filament\Forms\Form;
-use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\TextEntry\TextEntrySize;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
 
 class XArticleResource extends Resource
 {
-    protected static ?int $navigationSort = 0;
-
     protected static ?string $slug = '/';
 
     protected static ?string $model = Article::class;
@@ -27,34 +22,9 @@ class XArticleResource extends Resource
     protected static ?string $modelLabel = 'головна';
     protected static ?string $pluralModelLabel = 'головна';
 
-    protected static ?string $navigationIcon = 'heroicon-o-home';
-
-    public static function form(Form $form): Form
+    public static function shouldRegisterNavigation(): bool
     {
-        return $form
-            ->schema([
-                //
-            ]);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                //
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+        return false;
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -63,57 +33,76 @@ class XArticleResource extends Resource
             ->schema([
                 Section::make()
                     ->schema([
-                        ImageEntry::make('image')
+                        Infolists\Components\ImageEntry::make('image')
                             ->extraImgAttributes(fn (Article $record): array => [
                                 'alt' => addslashes($record->image_caption),
                             ])
                             ->width('100%')
                             ->height('auto')
                             ->hiddenLabel(),
-                        TextEntry::make('content')
+                        Infolists\Components\TextEntry::make('image_caption')
+                            ->formatStateUsing(fn (string $state): HtmlString => new HtmlString(
+                                '<span class="text-gray-500 dark:text-gray-400 italic">' . e($state) . '</span>'
+                            ))
+                            ->size(TextEntrySize::Small)
+                            ->visible(fn (Article $record): bool => filled($record->image_caption))
+                            ->hiddenLabel(),
+                        Infolists\Components\TextEntry::make('content')
                             ->formatStateUsing(fn (string $state): HtmlString => new HtmlString($state))
                             ->size(TextEntrySize::Medium)
                             ->prose()
                             ->hiddenLabel(),
-                        RepeatableEntry::make('children')
-                            ->schema([
-                                TextEntry::make('title')
-                                    ->url(fn (Article $record): string => self::getUrl('view', [
-                                        'slug1' => $record->parent->slug,
-                                        'slug2' => $record->slug,
-                                    ]))
-                                    ->size(TextEntrySize::Large)
-                                    ->hiddenLabel(),
-                                ImageEntry::make('image')
-                                    ->extraImgAttributes(fn (Article $record): array => [
-                                        'alt' => addslashes($record->image_caption),
-                                    ])
-                                    ->width('100%')
-                                    ->height('auto')
-                                    ->hiddenLabel(),
-                                TextEntry::make('resume')
-                                    ->hiddenLabel(),
-                            ])
-                            ->hiddenLabel()
-                            ->grid(),
+                        Infolists\Components\Split::make([
+                            Infolists\Components\Split::make([]),
+                            Infolists\Components\TextEntry::make('source_name')
+                                ->formatStateUsing(fn (string $state, Article $record): HtmlString => SourceLink::format($state, $record->source_url))
+                                ->grow(false)
+                                ->label('Джерело:')
+                                ->inlineLabel(),
+                        ])
+                            ->visible(fn (Article $record): bool => filled($record->source_name)),
+                        static::childrenSchema(),
                     ])
                     ->columns(1)
             ])
             ->columns(1);
     }
 
-    public static function getRelations(): array
+    public static function childrenSchema(): RepeatableEntry
     {
-        return [
-            //
-        ];
+        return RepeatableEntry::make('featuredChildren')
+            ->schema([
+                Infolists\Components\ImageEntry::make('image')
+                    ->width('100%')
+                    ->height('auto')
+                    ->extraImgAttributes(fn (Article $record): array => [
+                        'alt' => $record->title,
+                        'title' => $record->image_caption ?? '',
+                        'class' => 'w-full aspect-[4/3] object-cover',
+                        'loading' => 'lazy',
+                    ])
+                    ->url(fn (Article $record): string => $record->getUrl())
+                    ->hiddenLabel(),
+                Infolists\Components\TextEntry::make('title')
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString(
+                        '<h3 class="text-base font-semibold leading-snug">' . e($state) . '</h3>'
+                    ))
+                    ->url(fn (Article $record): string => $record->getUrl())
+                    ->hiddenLabel(),
+                Infolists\Components\TextEntry::make('resume')
+                    ->size(TextEntrySize::Small)
+                    ->hiddenLabel(),
+            ])
+            ->grid(['sm' => 2])
+            ->extraAttributes(['class' => 'mt-6'])
+            ->hiddenLabel();
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\Frontpage::route('/'),
-            'view' => Pages\ViewArticle::route('/{slug1?}/{slug2?}/{slug3?}/{slug4?}'),
+            'view' => Pages\ViewArticle::route('/{slug1}/{slug2?}/{slug3?}/{slug4?}/{slug5?}/{slug6?}'),
         ];
     }
 }

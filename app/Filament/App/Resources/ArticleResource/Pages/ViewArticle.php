@@ -3,6 +3,8 @@
 namespace App\Filament\App\Resources\ArticleResource\Pages;
 
 use App\Filament\App\Resources\XArticleResource;
+use App\Models\Article;
+use App\Traits\HasLatestNewsFooter;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
@@ -11,6 +13,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ViewArticle extends ViewRecord
 {
+    use HasLatestNewsFooter;
+
     protected static string $resource = XArticleResource::class;
 
     protected function getHeaderActions(): array
@@ -21,37 +25,52 @@ class ViewArticle extends ViewRecord
     public function mount(int|string|null $record = null): void
     {
         $this->record = $this->resolveRecord($record);
+        $this->record->load('featuredChildren');
+        $this->record->wireChildrenParent('featuredChildren');
 
         FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->record));
     }
 
     protected function resolveRecord(int|string|null $key = null): Model
     {
-        $record = null;
-        for ($i = 1; $i <= 4; $i++) {
+        $frontpage = static::getModel()::query()->frontpage()->first();
+
+        if (!$frontpage) {
+            throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
+        }
+
+        $chain = [];
+        $parentId = $frontpage->id;
+        for ($i = 1; $i <= Article::MAX_DEPTH; $i++) {
             $slug = request('slug' . $i, '');
             if (empty($slug)) {
                 break;
             }
 
             $model = static::getModel()::query()
-                ->where('parent_id', $record->id ?? null)
-                ->where('is_published', true)
+                ->where('parent_id', $parentId)
+                ->published()
                 ->where('slug', $slug)
                 ->first();
 
-            if (empty($model)) {
-                break;
+            if (!$model) {
+                throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
             }
 
-            $record = $model;
+            $chain[] = $model;
+            $parentId = $model->id;
         }
 
-        if ($record === null) {
+        if (empty($chain)) {
             throw (new ModelNotFoundException)->setModel($this->getModel(), [$key]);
         }
 
-        return $record;
+        $chain[0]->setRelation('parent', $frontpage);
+        for ($i = 1; $i < count($chain); $i++) {
+            $chain[$i]->setRelation('parent', $chain[$i - 1]);
+        }
+
+        return end($chain);
     }
 
     public function getHeading(): string
@@ -61,6 +80,16 @@ class ViewArticle extends ViewRecord
 
     public function getBreadcrumbs(): array
     {
-        return [];
+        $breadcrumbs = [url('/') => 'Головна'];
+
+        $ancestors = $this->record->getAncestors();
+        foreach ($ancestors as $ancestor) {
+            if (!$ancestor->isFrontpage()) {
+                $breadcrumbs[url($ancestor->getUrl())] = $ancestor->title;
+            }
+        }
+
+        return $breadcrumbs;
     }
+
 }
