@@ -5,11 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 
 abstract class Controller
 {
     protected const MYSQL_DUPLICATE_ENTRY = 1062;
+
+    protected function safeMarkdown(string $text): string
+    {
+        return Str::markdown($text, [
+            'html_input' => 'escape',
+            'allow_unsafe_links' => false,
+        ]);
+    }
+
     protected function validationErrorResponse(Validator $validator): JsonResponse
     {
         return $this->errorResponse($validator->messages()->all());

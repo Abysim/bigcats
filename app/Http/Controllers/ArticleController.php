@@ -72,10 +72,7 @@ class ArticleController extends Controller
         $article->parent_id = $frontpage->id;
         $article->title = $request->get('title');
         $article->slug = $this->generateUniqueSlug($request->get('title'), $frontpage->id);
-        $article->content = Str::markdown($request->get('content'), [
-            'html_input' => 'escape',
-            'allow_unsafe_links' => false,
-        ]);
+        $article->content = $this->safeMarkdown($request->get('content'));
         $article->image_caption = $request->get('image_caption');
         $article->source_url = $request->get('source_url');
         $article->source_name = $request->get('source_name');

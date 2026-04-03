@@ -3,9 +3,6 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Article;
-use App\Models\Tag;
-use App\Models\TagType;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -13,21 +10,15 @@ use Tests\TestCase;
 
 class ArticleApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, ApiTestHelpers;
 
-    // Inline to avoid a fixture file dependency; must be a valid JFIF header for finfo() detection
-    private const FAKE_JPEG = '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//2wBDAP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AVQP/2Q==';
-
-    private User $user;
-    private string $token;
     private Article $frontpage;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
-        $this->token = $this->user->createToken('test')->plainTextToken;
+        $this->setUpAuth();
 
         $this->frontpage = Article::factory()->create([
             'parent_id' => null,
@@ -36,12 +27,7 @@ class ArticleApiTest extends TestCase
             'is_published' => true,
         ]);
 
-        Http::fake(['*' => Http::response(
-            base64_decode(self::FAKE_JPEG),
-            200,
-            ['Content-Type' => 'image/jpeg'],
-        )]);
-        Storage::fake('public');
+        $this->setUpFakeImageDownload();
     }
 
     private function validArticlePayload(array $overrides = []): array
@@ -53,13 +39,6 @@ class ArticleApiTest extends TestCase
             'image_caption' => 'A caption',
             'tags' => ['TestTag'],
         ], $overrides);
-    }
-
-    private function createTag(string $name): Tag
-    {
-        $tagType = TagType::factory()->create();
-
-        return Tag::factory()->create(['name' => $name, 'parent_id' => null, 'type_id' => $tagType->id]);
     }
 
     public function test_create_article_requires_authentication(): void

@@ -3,37 +3,20 @@
 namespace Tests\Feature\Api;
 
 use App\Models\News;
-use App\Models\Tag;
-use App\Models\TagType;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class NewsApiTest extends TestCase
 {
-    use RefreshDatabase;
-
-    // Inline to avoid a fixture file dependency; must be a valid JFIF header for finfo() detection
-    private const FAKE_JPEG = '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//2wBDAP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AVQP/2Q==';
-
-    private User $user;
-    private string $token;
+    use RefreshDatabase, ApiTestHelpers;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
-        $this->token = $this->user->createToken('test')->plainTextToken;
-
-        Http::fake(['*' => Http::response(
-            base64_decode(self::FAKE_JPEG),
-            200,
-            ['Content-Type' => 'image/jpeg'],
-        )]);
-        Storage::fake('public');
+        $this->setUpAuth();
+        $this->setUpFakeImageDownload();
     }
 
     private function validNewsPayload(array $overrides = []): array
@@ -49,12 +32,6 @@ class NewsApiTest extends TestCase
         ], $overrides);
     }
 
-    private function createTag(string $name): Tag
-    {
-        $tagType = TagType::factory()->create();
-
-        return Tag::factory()->create(['name' => $name, 'parent_id' => null, 'type_id' => $tagType->id]);
-    }
 
     public function test_create_news_requires_authentication(): void
     {

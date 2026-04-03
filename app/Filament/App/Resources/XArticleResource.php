@@ -24,7 +24,7 @@ class XArticleResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return false; // Navigation handled by AppPanelProvider
+        return false;
     }
 
     public static function infolist(Infolist $infolist): Infolist

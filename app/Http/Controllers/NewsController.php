@@ -68,10 +68,7 @@ class NewsController extends Controller
         $news = new News();
         $news->title = $request->get('title');
         $news->slug = Str::slug($request->get('title'), language: config('app.locale'));
-        $news->content = Str::markdown($request->get('content'), [
-            'html_input' => 'escape',
-            'allow_unsafe_links' => false,
-        ]);
+        $news->content = $this->safeMarkdown($request->get('content'));
         $news->date = $request->get('date');
         $news->image_caption = $request->get('image_caption');
         $news->is_original = $request->get('is_original');
