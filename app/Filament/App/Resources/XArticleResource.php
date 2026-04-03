@@ -10,7 +10,6 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry\TextEntrySize;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\FontWeight;
 use Illuminate\Support\HtmlString;
 
 class XArticleResource extends Resource

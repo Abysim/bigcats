@@ -82,11 +82,6 @@ class Article extends Model implements Sitemapable
         return $this->hasMany(Article::class, 'parent_id');
     }
 
-    public function publishedChildren(): HasMany
-    {
-        return $this->children()->published()->orderBy('priority');
-    }
-
     public function featuredChildren(): HasMany
     {
         return $this->children()->published()->featured()->orderBy('priority');
