@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Filament\App\Resources\NewsResource;
 use App\Models\News;
+use App\Traits\DownloadsImages;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
+    use DownloadsImages;
+
     public function create(Request $request)
     {
         $validator = $this->validateRequest($request);
@@ -24,9 +26,11 @@ class NewsController extends Controller
         }
 
         $news = $this->createNews($request);
-        if (!$this->saveImage($request, $news)) {
+        $imagePath = $this->downloadAndStoreImage($request->get('image'), 'news');
+        if (!$imagePath) {
             return $this->errorResponse('Failed to save image', 500);
         }
+        $news->image = $imagePath;
 
         $news->save();
         $news->refresh();
@@ -64,7 +68,10 @@ class NewsController extends Controller
         $news = new News();
         $news->title = $request->get('title');
         $news->slug = Str::slug($request->get('title'), language: config('app.locale'));
-        $news->content = Str::markdown($request->get('content'));
+        $news->content = Str::markdown($request->get('content'), [
+            'html_input' => 'escape',
+            'allow_unsafe_links' => false,
+        ]);
         $news->date = $request->get('date');
         $news->image_caption = $request->get('image_caption');
         $news->is_original = $request->get('is_original');
@@ -74,18 +81,6 @@ class NewsController extends Controller
         $news->author = $request->get('author');
 
         return $news;
-    }
-
-    protected function saveImage(Request $request, News $news)
-    {
-        $image = Http::get($request->get('image'))->body();
-        $filename = 'news/' . md5($image) . '.' . explode('#', explode('?', Str::afterLast($request->get('image'), '.'))[0])[0] ?? 'jpg';
-        if (Storage::disk('public')->put($filename, $image)) {
-            $news->image = $filename;
-            return true;
-        }
-
-        return false;
     }
 
     protected function successResponse(News $news)

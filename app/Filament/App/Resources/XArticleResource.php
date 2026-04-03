@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\ArticleResource\Pages;
+use App\Helpers\SourceLink;
 use App\Models\Article;
 use Filament\Infolists;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -54,11 +55,7 @@ class XArticleResource extends Resource
                         Infolists\Components\Split::make([
                             Infolists\Components\Split::make([]),
                             Infolists\Components\TextEntry::make('source_name')
-                                ->formatStateUsing(fn (string $state, Article $record): HtmlString => new HtmlString(
-                                    $record->source_url
-                                        ? '<a rel="nofollow" title="' . e($record->source_url) . '" href="' . e($record->source_url) . '" target="_blank">' . e($state) . '</a>'
-                                        : e($state)
-                                ))
+                                ->formatStateUsing(fn (string $state, Article $record): HtmlString => SourceLink::format($state, $record->source_url))
                                 ->grow(false)
                                 ->label('Джерело:')
                                 ->inlineLabel(),

@@ -3,23 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Traits\DownloadsImages;
 use Illuminate\Database\QueryException;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
-    private const ALLOWED_IMAGE_MIMES = [
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/gif' => 'gif',
-        'image/webp' => 'webp',
-    ];
+    use DownloadsImages;
 
     public function create(Request $request)
     {
@@ -34,9 +28,11 @@ class ArticleController extends Controller
         }
 
         $article = $this->createArticle($request, $frontpage);
-        if (!$this->saveImage($request, $article)) {
+        $imagePath = $this->downloadAndStoreImage($request->get('image'), 'articles');
+        if (!$imagePath) {
             return $this->errorResponse('Failed to save image', 500);
         }
+        $article->image = $imagePath;
 
         try {
             DB::transaction(function () use ($article, $request) {
@@ -104,35 +100,6 @@ class ArticleController extends Controller
         }
 
         return $slug;
-    }
-
-    protected function saveImage(Request $request, Article $article)
-    {
-        try {
-            $response = Http::timeout(10)->get($request->get('image'));
-        } catch (ConnectionException) {
-            return false;
-        }
-
-        if ($response->failed()) {
-            return false;
-        }
-
-        $image = $response->body();
-
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $extension = self::ALLOWED_IMAGE_MIMES[$finfo->buffer($image)] ?? null;
-        if ($extension === null) {
-            return false;
-        }
-
-        $filename = 'articles/' . md5($image) . '.' . $extension;
-        if (Storage::disk('public')->put($filename, $image)) {
-            $article->image = $filename;
-            return true;
-        }
-
-        return false;
     }
 
     protected function successResponse(Article $article)

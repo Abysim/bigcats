@@ -15,6 +15,9 @@ class NewsApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    // Inline to avoid a fixture file dependency; must be a valid JFIF header for finfo() detection
+    private const FAKE_JPEG = '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//2wBDAP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//AP//wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AVQP/2Q==';
+
     private User $user;
     private string $token;
 
@@ -25,7 +28,11 @@ class NewsApiTest extends TestCase
         $this->user = User::factory()->create();
         $this->token = $this->user->createToken('test')->plainTextToken;
 
-        Http::fake(['*' => Http::response('fake-image-content')]);
+        Http::fake(['*' => Http::response(
+            base64_decode(self::FAKE_JPEG),
+            200,
+            ['Content-Type' => 'image/jpeg'],
+        )]);
         Storage::fake('public');
     }
 

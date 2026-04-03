@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\NewsResource\Pages;
+use App\Helpers\SourceLink;
 use App\Models\News;
 use Filament\Infolists;
 use Filament\Infolists\Components\Section;
@@ -96,11 +97,7 @@ class NewsResource extends Resource
                                 ->inlineLabel(),
                             Infolists\Components\Split::make([]),
                             Infolists\Components\TextEntry::make('source_name')
-                                ->formatStateUsing(fn (string $state, News $record): HtmlString => new HtmlString(
-                                    $record->source_url
-                                        ? '<a rel="nofollow" title="' . e($record->source_url) . '" href="' . e($record->source_url) . '" target="_blank">' . e($state) . '</a>'
-                                        : e($state)
-                                ))
+                                ->formatStateUsing(fn (string $state, News $record): HtmlString => SourceLink::format($state, $record->source_url))
                                 ->grow(false)
                                 ->label('Джерело:')
                                 ->inlineLabel(),
