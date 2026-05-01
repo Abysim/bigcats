@@ -78,7 +78,7 @@ class XArticleResource extends Resource
                     ->extraImgAttributes(fn (Article $record): array => [
                         'alt' => $record->title,
                         'title' => $record->image_caption ?? '',
-                        'class' => 'w-full aspect-[4/3] object-cover',
+                        'class' => 'w-full aspect-[3/2] object-cover',
                         'loading' => 'lazy',
                     ])
                     ->url(fn (Article $record): string => $record->getUrl())
