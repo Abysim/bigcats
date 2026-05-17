@@ -8,7 +8,6 @@ Solo task list for the BigCats project. Newest items at the top of each section.
 ## Next
 <!-- Up next, in rough priority order -->
 
-- **Bug:** YouTube videos not displaying on news article pages — fix embed rendering
 - Publish remaining big cat articles
   - Source Creative Commons photos from Flickr (one per article)
   - Prioritize rare genetic mutations: **melanism** and **leucism**
@@ -30,3 +29,5 @@ Solo task list for the BigCats project. Newest items at the top of each section.
 
 ## Done
 <!-- Completed items, most recent first. Trim periodically. -->
+
+- **Bug:** YouTube videos not displaying on news article pages — fixed embed rendering (override Filament's HTML sanitizer to allow iframes from YouTube/Vimeo/Dailymotion; CSS to keep wrapper full-width inside Filament's `inline-flex` text-entry container)
