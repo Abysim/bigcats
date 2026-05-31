@@ -33,4 +33,5 @@ yarn-error.log
 # Project exclude paths
 /storage/app/
 /storage/framework/
+/storage/photo-candidates/
 /public_html/sitemap.xml
