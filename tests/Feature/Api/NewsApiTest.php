@@ -3,30 +3,20 @@
 namespace Tests\Feature\Api;
 
 use App\Models\News;
-use App\Models\Tag;
-use App\Models\TagType;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class NewsApiTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $user;
-    private string $token;
+    use RefreshDatabase, ApiTestHelpers;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
-        $this->token = $this->user->createToken('test')->plainTextToken;
-
-        Http::fake(['*' => Http::response('fake-image-content')]);
-        Storage::fake('public');
+        $this->setUpAuth();
+        $this->setUpFakeImageDownload();
     }
 
     private function validNewsPayload(array $overrides = []): array
@@ -42,12 +32,6 @@ class NewsApiTest extends TestCase
         ], $overrides);
     }
 
-    private function createTag(string $name): Tag
-    {
-        $tagType = TagType::factory()->create();
-
-        return Tag::factory()->create(['name' => $name, 'parent_id' => null, 'type_id' => $tagType->id]);
-    }
 
     public function test_create_news_requires_authentication(): void
     {

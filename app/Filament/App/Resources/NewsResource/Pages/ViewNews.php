@@ -3,7 +3,7 @@
 namespace App\Filament\App\Resources\NewsResource\Pages;
 
 use App\Filament\App\Resources\NewsResource;
-use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
+use App\Traits\HasLatestNewsFooter;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\ViewRecord;
@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 
 class ViewNews extends ViewRecord
 {
+    use HasLatestNewsFooter;
     protected static string $resource = NewsResource::class;
 
     protected function getHeaderActions(): array
@@ -69,21 +70,4 @@ class ViewNews extends ViewRecord
         return $breadcrumbs;
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [
-            LatestNews::make([
-                'count' => 6,
-            ]),
-        ];
-    }
-
-    public function getFooterWidgetsColumns(): int | array
-    {
-        return [
-            'sm' => 1,
-            'md' => 2,
-            'lg' => 1,
-        ];
-    }
 }

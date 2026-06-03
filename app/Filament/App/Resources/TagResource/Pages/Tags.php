@@ -2,15 +2,15 @@
 
 namespace App\Filament\App\Resources\TagResource\Pages;
 
-use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
 use App\Filament\App\Resources\TagResource;
 use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use App\Traits\HasCustomSEO;
+use App\Traits\HasLatestNewsFooter;
 use Filament\Resources\Pages\Page;
 
 class Tags extends Page
 {
-    use HasCustomSEO;
+    use HasCustomSEO, HasLatestNewsFooter;
 
     protected static ?string $title = 'Теґи';
 
@@ -45,21 +45,4 @@ class Tags extends Page
         return [];
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [
-            LatestNews::make([
-                'count' => 6,
-            ]),
-        ];
-    }
-
-    public function getFooterWidgetsColumns(): int | array
-    {
-        return [
-            'sm' => 1,
-            'md' => 2,
-            'lg' => 1,
-        ];
-    }
 }

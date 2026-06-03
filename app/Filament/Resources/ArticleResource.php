@@ -4,8 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Pages;
 use App\Models\Article;
-use App\Models\News;
-use Exception;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -63,7 +61,7 @@ class ArticleResource extends Resource
                     ])
                     ->columns(12)
                     ->columnSpanFull(),
-                Section::make('Image')
+                Section::make('Image & Source')
                     ->columns(4)
                     ->schema([
                         FileUpload::make('image')
@@ -73,6 +71,14 @@ class ArticleResource extends Resource
                             ->image(),
                         TextInput::make('image_caption')
                             ->maxLength(1024)
+                            ->columnSpan(3),
+                        TextInput::make('source_name')
+                            ->maxLength(255)
+                            ->default(null),
+                        TextInput::make('source_url')
+                            ->maxLength(1024)
+                            ->default(null)
+                            ->url()
                             ->columnSpan(3),
                     ])
                     ->collapsible(),
@@ -95,6 +101,13 @@ class ArticleResource extends Resource
                             ->unique(modifyRuleUsing: fn (Unique $rule, Get $get, ?Article $record) =>
                                 $rule->where('slug', $get('slug'))->whereNot('id', $record->id ?? 0)
                             )
+                            ->rules([
+                                fn (Get $get, ?Article $record) => function ($attribute, $value, $fail) use ($record) {
+                                    if ($value === null && Article::frontpage()->where('id', '!=', $record?->id ?? 0)->exists()) {
+                                        $fail('A frontpage article already exists. Only one root article is allowed.');
+                                    }
+                                },
+                            ])
                             ->searchable()
                             ->columnSpan(5),
                         TextInput::make('slug')
@@ -109,15 +122,16 @@ class ArticleResource extends Resource
                             ->default(true)
                             ->required()
                             ->inline(false),
+                        Toggle::make('is_featured')
+                            ->label('Featured')
+                            ->default(false)
+                            ->inline(false),
                     ])
                     ->columns(12)
                     ->columnSpanFull(),
             ]);
     }
 
-    /**
-     * @throws Exception
-     */
     public static function table(Table $table): Table
     {
         return $table
@@ -141,6 +155,7 @@ class ArticleResource extends Resource
                     ->searchable(),
                 ToggleColumn::make('is_published')
                     ->default(true),
+                ToggleColumn::make('is_featured'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

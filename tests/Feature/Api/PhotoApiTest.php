@@ -3,25 +3,18 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Photo;
-use App\Models\Tag;
-use App\Models\TagType;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PhotoApiTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private User $user;
-    private string $token;
+    use RefreshDatabase, ApiTestHelpers;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
-        $this->token = $this->user->createToken('test')->plainTextToken;
+        $this->setUpAuth();
     }
 
     private function validPhotoPayload(array $overrides = []): array
@@ -35,13 +28,6 @@ class PhotoApiTest extends TestCase
             'thumbnail_height' => 480,
             'tags' => ['TestTag'],
         ], $overrides);
-    }
-
-    private function createTag(string $name): Tag
-    {
-        $tagType = TagType::factory()->create();
-
-        return Tag::factory()->create(['name' => $name, 'parent_id' => null, 'type_id' => $tagType->id]);
     }
 
     public function test_create_photo_requires_authentication(): void

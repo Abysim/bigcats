@@ -26,6 +26,16 @@ section > div > div.grid > div.grid div.grid > div {
     }
 }
 
+/* Article children grid — tighter spacing between image, title, resume */
+.fi-in-repeatable-item .fi-fo-component-ctn {
+    @apply !gap-2;
+}
+
+/* Topbar hover dropdown */
+.fi-topbar-dropdown:hover .fi-topbar-dropdown-panel {
+    display: block;
+}
+
 /* Photo Gallery - Full width (no sidebar) */
 @media (min-width: 64rem) {
     section > div > div.grid:has(.photo-gallery) {
@@ -80,4 +90,15 @@ section > div > div.grid > div.grid div.grid > div {
     height: auto;
     display: block;
     border-radius: 0.5rem;
+}
+
+/* Drupal-imported embeds use position:absolute iframes which don't
+   contribute to the inline-flex parent's intrinsic width, so the
+   `max-w-max` and `inline-flex` Filament wrappers shrink to content. */
+.fi-in-text:has(.responsive) .max-w-max,
+.fi-in-text:has(.responsive) .fi-in-text-item,
+.fi-in-text:has(.responsive) .fi-in-text-item-prose {
+    max-width: none;
+    width: 100%;
+    flex: 1 1 auto;
 }

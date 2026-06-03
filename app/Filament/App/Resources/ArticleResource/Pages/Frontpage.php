@@ -2,25 +2,45 @@
 
 namespace App\Filament\App\Resources\ArticleResource\Pages;
 
-use App\Filament\App\Resources\NewsResource\Widgets\LatestNews;
-use App\Filament\App\Resources\TagResource\Widgets\TagCloud;
 use App\Filament\App\Resources\XArticleResource;
-use App\Traits\HasCustomSEO;
+use App\Models\Article;
+use App\Traits\HasLatestNewsFooter;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\Page;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 
 class Frontpage extends Page
 {
-    use HasCustomSEO;
-
-    protected static ?string $title = 'Останні новини';
+    use HasLatestNewsFooter;
 
     protected static string $resource = XArticleResource::class;
 
     protected static string $view = 'filament.app.resources.article-resource.pages.frontpage';
 
+    public ?Article $article = null;
+
     public function mount(): void
     {
-        $this->registerSEO();
+        $this->article = Article::frontpage()
+            ->with('featuredChildren')
+            ->first();
+
+        $this->article?->wireChildrenParent('featuredChildren');
+
+        if ($this->article) {
+            FilamentView::registerRenderHook(PanelsRenderHook::HEAD_START, fn(): string => seo($this->article));
+        }
+    }
+
+    public function getTitle(): string
+    {
+        return $this->article?->title ?? '';
+    }
+
+    public function getHeading(): string
+    {
+        return '';
     }
 
     public function getBreadcrumbs(): array
@@ -28,38 +48,17 @@ class Frontpage extends Page
         return [];
     }
 
-    protected function getHeaderWidgets(): array
+    public function childrenInfolist(Infolist $infolist): Infolist
     {
-        return [
-            LatestNews::make([
-                'header' => '',
-                'count' => 12,
-                'grid' => [
-                    'default' => 2,
-                    'md' => 3,
-                    'xl' => 4,
-                ]
-            ]),
-        ];
+        if (! $this->article) {
+            return $infolist;
+        }
+
+        return $infolist
+            ->record($this->article)
+            ->schema([
+                XArticleResource::childrenSchema(),
+            ]);
     }
 
-    public function getHeaderWidgetsColumns(): int | array
-    {
-        return 1;
-    }
-
-    protected function getFooterWidgets(): array
-    {
-        return [
-            TagCloud::make([
-                'relation' => 'news',
-            ]),
-        ];
-
-    }
-
-    public function getFooterWidgetsColumns(): int | array
-    {
-        return 1;
-    }
 }
