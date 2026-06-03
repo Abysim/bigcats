@@ -27,6 +27,10 @@ class ArticleController extends Controller
             return $this->errorResponse('Frontpage article not found', 500);
         }
 
+        if ($request->boolean('update')) {
+            return $this->updateArticle($request, $frontpage);
+        }
+
         $article = $this->createArticle($request, $frontpage);
         $imagePath = $this->downloadAndStoreImage($request->get('image'), 'articles');
         if (!$imagePath) {
@@ -57,12 +61,13 @@ class ArticleController extends Controller
         return Validator::make($request->all(), [
             'title' => 'required|string|max:500',
             'content' => 'required|string|max:100000',
-            'image' => ['required', 'url', 'max:2048', 'regex:/^https:\/\//i'],
+            'image' => [$request->boolean('update') ? 'nullable' : 'required', 'url', 'max:2048', 'regex:/^https:\/\//i'],
             'image_caption' => 'required|string|max:500',
             'source_url' => 'url|max:1024',
             'source_name' => 'string|max:255',
             'tags' => 'required|array|min:1|max:20',
             'tags.*' => 'required|string|max:128',
+            'update' => 'sometimes|boolean',
         ]);
     }
 
@@ -79,6 +84,35 @@ class ArticleController extends Controller
         $article->is_published = false;
 
         return $article;
+    }
+
+    protected function updateArticle(Request $request, Article $frontpage)
+    {
+        $matches = Article::where('parent_id', $frontpage->id)
+            ->where('title', $request->get('title'))
+            ->get();
+
+        if ($matches->count() !== 1) {
+            return $this->errorResponse(
+                $matches->isEmpty() ? 'No matching article to update' : 'Ambiguous update target',
+                $matches->isEmpty() ? 404 : 409
+            );
+        }
+
+        $article = $matches->first();
+        $article->content = $this->safeMarkdown($request->get('content'));
+        $article->image_caption = $request->get('image_caption');
+        $article->source_url = $request->get('source_url');
+        $article->source_name = $request->get('source_name');
+
+        DB::transaction(function () use ($article, $request) {
+            $article->save();
+            $this->syncTags($request->get('tags'), $article);
+        });
+
+        $article->setRelation('parent', $frontpage);
+
+        return $this->successResponse($article);
     }
 
     protected function generateUniqueSlug(string $title, int $parentId): string
